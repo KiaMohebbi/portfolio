@@ -1,0 +1,60 @@
+{
+ "as_of": "2026-11-20",
+ "file_count": 13,
+ "kind": "quarterly",
+ "manifest_sha256": "003199a34d29e7239404c58435f36c0744deffcfbe5d75c91e42e2637ea320cf",
+ "opentimestamps": {
+  "bitcoin_block_heights": [
+   977180,
+   977180,
+   977205,
+   977237
+  ],
+  "calendars": [
+   "https://a.pool.opentimestamps.org",
+   "https://b.pool.opentimestamps.org",
+   "https://a.pool.eternitywall.com",
+   "https://ots.btc.catallaxy.com"
+  ],
+  "failed": [],
+  "file": "MANIFEST.sha256.ots",
+  "status": "complete",
+  "upgraded_utc": "2026-11-23T17:45:19+00:00"
+ },
+ "recap_id": "2026-Q4-startup",
+ "rfc3161": [
+  {
+   "file": "MANIFEST.sha256.tsr",
+   "gen_time": "Nov 23 09:29:34 2026 GMT",
+   "name": "freetsa",
+   "url": "https://freetsa.org/tsr",
+   "verified": true,
+   "verify_args": [
+    "-CAfile",
+    "tsa/freetsa-cacert.pem",
+    "-untrusted",
+    "tsa/freetsa-tsa.crt"
+   ]
+  },
+  {
+   "file": "MANIFEST.sha256.digicert.tsr",
+   "gen_time": "Nov 23 09:29:34 2026 GMT",
+   "name": "digicert",
+   "url": "http://timestamp.digicert.com",
+   "verified": true,
+   "verify_args": [
+    "-CAfile",
+    "tsa/digicert-root.pem",
+    "-untrusted",
+    "tsa/digicert-chain.pem"
+   ]
+  }
+ ],
+ "stamped_utc": "2026-11-23T09:29:40+00:00",
+ "tool_versions": {
+  "openssl": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+  "opentimestamps": "0.5.0",
+  "python": "3.14.6",
+  "quarto": "1.10.18"
+ }
+}

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-07-22">
+<meta name="description" content="A two-state Markov regime model was built, verified and frozen in July 2026, failed every production audition, and had its regime mixture retired from the predictive covariance and the scenario generator, while part of its machinery still produces the displayed volatility and the factor shares.">
+
+<title>The regime mixture: built, tested, retired – Quantitative Research Journal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../_support/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Quantitative Research Journal</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../library.html"> 
+<span class="menu-text">Research and recaps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#still-in-use" id="toc-still-in-use" class="nav-link active" data-scroll-target="#still-in-use">Still in use</a></li>
+  <li><a href="#e-2026-07-16-01" id="toc-e-2026-07-16-01" class="nav-link" data-scroll-target="#e-2026-07-16-01">Markov regime model: build, verify, and leak-free in-regime estimator selection (shrinkage selected)</a>
+  <ul class="collapse">
+  <li><a href="#question" id="toc-question" class="nav-link" data-scroll-target="#question">Question</a></li>
+  <li><a href="#design-pre-registered-in-the-notebook" id="toc-design-pre-registered-in-the-notebook" class="nav-link" data-scroll-target="#design-pre-registered-in-the-notebook">Design (pre-registered in the notebook)</a></li>
+  <li><a href="#outcome" id="toc-outcome" class="nav-link" data-scroll-target="#outcome">Outcome</a></li>
+  <li><a href="#decision" id="toc-decision" class="nav-link" data-scroll-target="#decision">Decision</a></li>
+  <li><a href="#where-it-led" id="toc-where-it-led" class="nav-link" data-scroll-target="#where-it-led">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-17-01" id="toc-e-2026-07-17-01" class="nav-link" data-scroll-target="#e-2026-07-17-01">Regime state count: is a third regime real? (statistically real, decision-irrelevant; two states stand)</a>
+  <ul class="collapse">
+  <li><a href="#question-1" id="toc-question-1" class="nav-link" data-scroll-target="#question-1">Question</a></li>
+  <li><a href="#pre-registration-criteria-fixed-before-any-result" id="toc-pre-registration-criteria-fixed-before-any-result" class="nav-link" data-scroll-target="#pre-registration-criteria-fixed-before-any-result">Pre-registration (criteria fixed before any result)</a></li>
+  <li><a href="#outcome-1" id="toc-outcome-1" class="nav-link" data-scroll-target="#outcome-1">Outcome</a></li>
+  <li><a href="#decision-1" id="toc-decision-1" class="nav-link" data-scroll-target="#decision-1">Decision</a></li>
+  <li><a href="#where-it-led-1" id="toc-where-it-led-1" class="nav-link" data-scroll-target="#where-it-led-1">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-18-01" id="toc-e-2026-07-18-01" class="nav-link" data-scroll-target="#e-2026-07-18-01">Regime signal selection: which signal makes the most trustworthy two-state model? (incumbent stands)</a>
+  <ul class="collapse">
+  <li><a href="#question-2" id="toc-question-2" class="nav-link" data-scroll-target="#question-2">Question</a></li>
+  <li><a href="#pre-registration-rule-fixed-before-looking-at-the-scores" id="toc-pre-registration-rule-fixed-before-looking-at-the-scores" class="nav-link" data-scroll-target="#pre-registration-rule-fixed-before-looking-at-the-scores">Pre-registration (rule fixed before looking at the scores)</a></li>
+  <li><a href="#outcome-2" id="toc-outcome-2" class="nav-link" data-scroll-target="#outcome-2">Outcome</a></li>
+  <li><a href="#decision-2" id="toc-decision-2" class="nav-link" data-scroll-target="#decision-2">Decision</a></li>
+  <li><a href="#where-it-led-2" id="toc-where-it-led-2" class="nav-link" data-scroll-target="#where-it-led-2">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-21-01" id="toc-e-2026-07-21-01" class="nav-link" data-scroll-target="#e-2026-07-21-01">Regime battery: does the Markov switch fix exception clustering? (discrete switch not justified)</a>
+  <ul class="collapse">
+  <li><a href="#question-3" id="toc-question-3" class="nav-link" data-scroll-target="#question-3">Question</a></li>
+  <li><a href="#design" id="toc-design" class="nav-link" data-scroll-target="#design">Design</a></li>
+  <li><a href="#outcome-3" id="toc-outcome-3" class="nav-link" data-scroll-target="#outcome-3">Outcome</a></li>
+  <li><a href="#decision-3" id="toc-decision-3" class="nav-link" data-scroll-target="#decision-3">Decision</a></li>
+  <li><a href="#where-it-led-3" id="toc-where-it-led-3" class="nav-link" data-scroll-target="#where-it-led-3">Where it led</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+<div class="site-disclaimer" role="note">
+<p>This site documents a personal research project. Nothing here is investment advice or a recommendation to buy or sell any security. The portfolio shown is a model portfolio; no real money is invested. Backtested and projected figures are hypothetical and do not predict future results.</p>
+</div>
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">The regime mixture: built, tested, retired</h1>
+</div>
+
+<div>
+  <div class="description">
+    A two-state Markov regime model was built, verified and frozen in July 2026, failed every production audition, and had its regime mixture retired from the predictive covariance and the scenario generator, while part of its machinery still produces the displayed volatility and the factor shares.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 22, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Study</th>
+<th>Date</th>
+<th>Status</th>
+<th>Reason (from its record)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#e-2026-07-16-01">Markov regime model build</a></td>
+<td>2026-07-16</td>
+<td>adopted</td>
+<td>“Pattern delivered as pre-registered” (model specification); its mixture was retired later, see <a href="#still-in-use">Still in use</a></td>
+</tr>
+<tr class="even">
+<td><a href="#e-2026-07-17-01">Regime state count</a></td>
+<td>2026-07-17</td>
+<td>rejected</td>
+<td>“2 states stand” (model specification); the third state is statistically real but decision-irrelevant</td>
+</tr>
+<tr class="odd">
+<td><a href="#e-2026-07-18-01">Regime signal selection</a></td>
+<td>2026-07-18</td>
+<td>rejected</td>
+<td>“NO challenger qualifies” (model specification); the incumbent signal stands</td>
+</tr>
+<tr class="even">
+<td><a href="#e-2026-07-21-01">Regime battery</a></td>
+<td>2026-07-21</td>
+<td>rejected</td>
+<td>“discrete switch not justified” (model specification), as a clustering fix</td>
+</tr>
+</tbody>
+</table>
+<p>This program asked whether a two-state hidden Markov regime model, with the asset covariance estimated separately in each regime, gives better risk forecasts and tail scenarios than a single-regime model. In July 2026 the model was built and verified, kept at two states and on its original signal, and frozen as an input to every later test. It then auditioned for five production jobs and earned none: the <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a> removed the regime mixture from the predictive covariance, and the <a href="../research/tail-scenarios.html#e-2026-07-22-08">generator simplification</a> removed it from the scenario generator. Part of the regime machinery still runs in production; the <a href="#still-in-use">next section</a> says exactly what.</p>
+<section id="still-in-use" class="level2">
+<h2 class="anchored" data-anchor-id="still-in-use">Still in use</h2>
+<p>The regime mixture no longer produces the predictive covariance, which the <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a> replaced with the certified 156-week single-regime covariance, or the scenarios, which the <a href="../research/tail-scenarios.html#e-2026-07-22-08">generator simplification</a> replaced with a single-regime generator on that covariance. At every strike and every forecast refresh, part of the machinery still runs: the 2-state Gaussian hidden Markov model is fitted on the incumbent signal, its filtered state probabilities weight the observations of a 260-week hybrid factor model fitted separately for each regime, and the same 260-week step sets which assets are active. Mixed with the model’s stationary state probabilities, the per-regime fits produce the displayed annualized volatility of the portfolio (and the ex-ante Sharpe ratio computed from it) and its factor variance shares, including the rates-factor (dRATE) share that the delivered rule caps at 0.35. No study tested this role on its own: the <a href="../research/risk-calibration.html#e-2026-07-22-02">final confirmation</a> and the window study scored the 260-week regime-pooled covariance only as a predictive covariance, weighted by next-week state probabilities, before it was retired from that job; the stationary mixture behind these numbers was scored only as the base of the old scenario generator (the <a href="../research/tail-scenarios.html#e-2026-07-22-05">scenario-layer audit</a> found its one-step spread narrower than the certified predictive); and the <a href="../research/optimizer-delivered-rule.html#e-2026-07-19-01">frontier characterization</a> treated the factor variance share as an attribution proxy. Realized against predicted volatility of the delivered mix is among the forward readings pre-registered with the selection rule, so the displayed volatility will be compared with realized volatility over live weeks.</p>
+<p>Open question (no work scheduled): should the displayed volatility and the factor shares come from the certified risk model instead?</p>
+</section>
+<section id="e-2026-07-16-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-16-01">Markov regime model: build, verify, and leak-free in-regime estimator selection (shrinkage selected)</h2>
+<p><em>Logged 2026-07-16.</em></p>
+<p><em>Phase one built and verified a two-state hidden Markov model on a low-dimensional regime signal with positive and negative controls; phase two selected the in-regime covariance estimator in a causal walk-forward. Regime conditioning delivered the pre-registered calibration pattern.</em></p>
+<section id="question" class="level3">
+<h3 class="anchored" data-anchor-id="question">Question</h3>
+<p>Two phases, stated before either ran. Phase one: build a two-state Gaussian hidden Markov model on a low-dimensional, regime-revealing signal and prove it works alone. Phase two: plug it into a leak-free, joint, causal walk-forward and select the in-regime covariance estimator, scored with the identical decision-level bias-ratio protocol as the <a href="../research/foundation-covariance.html#e-2026-07-13-02">estimator selection</a>. Risk machinery only; expected returns untouched.</p>
+</section>
+<section id="design-pre-registered-in-the-notebook" class="level3">
+<h3 class="anchored" data-anchor-id="design-pre-registered-in-the-notebook">Design (pre-registered in the notebook)</h3>
+<p><strong>Extending history to 2008.</strong> The common window from the earlier tests missed the most valuable crisis data. Young ETFs were spliced onto proxy history in return space, never price space, with a constant fee drag subtracted from the proxy side and calendar continuity asserted at the seam. Every splice was validated in the overlap window (beta near one, high explanatory power, small constant mean gap, volatility ratio near one). Where a proxy carried a different exposure, that one asset’s history was shortened rather than injecting a bad splice: the managed-futures, convertible, and factor-ETF names were shortened to their native starts. The loan proxy was kept but flagged for stale pricing, and the crisis regime was examined with and without the stale-priced names.</p>
+<p><strong>Phase one.</strong> A pre-registered two-dimensional signal: weekly market return plus log trailing realized volatility. Gaussian emissions are fine for identification; fat tails are handled later in the scenario layer. State identity was pinned by ordering states on emission volatility after every fit, the label-switching fix. Verification: the model must light up on 2008, 2020, and 2022 and stay quiet in calm stretches; transitions must be sticky; it must pass a synthetic positive control (recover a known two-regime structure) and a negative control (refuse to manufacture regimes on single-regime data). Smoothed probabilities were allowed only in the descriptive plots and banned from phase two.</p>
+<p><strong>Phase two.</strong> At every re-estimation date: refit the model on training data only, behind an embargo; take filtered (causal) probabilities; estimate the full asset covariance within each regime on training data, soft-weighting every observation by its filtered probability of that state, so the crisis covariance draws on every crisis-like week across 2008, 2011, 2015 to 2016, 2018, and 2020 rather than one episode; form the one-step-ahead predictive as the transition-weighted mixture; score the next six months; roll. Estimators compared: raw soft-pooled, shrinkage toward constant correlation, split clock, hybrid factor model, and the random-matrix-denoised candidate, against the single-regime shrinkage winner. Daily frequency was run as a robustness check only.</p>
+</section>
+<section id="outcome" class="level3">
+<h3 class="anchored" data-anchor-id="outcome">Outcome</h3>
+<p><strong>Result: regime conditioning delivered the pre-registered pattern; shrinkage selected.</strong></p>
+<ul>
+<li>Both phase-one controls passed. The fitted model recovers the three named crises and stays quiet in the calm years, with sticky durations.</li>
+<li>Against the single-regime benchmark, the turbulent-window median bias improved markedly toward calibrated (the single-regime covariance, dragged toward its mostly calm trailing level, over-forecasts in the windows the model itself flags as crisis), calm bias improved modestly, and turbulent dispersion worsened slightly. Median and dispersion were reported separately so the noise increase is not misread as a bias problem. It is the expected cost of estimating a crisis covariance from fewer effective observations.</li>
+<li><strong>Pick: shrinkage</strong> (improves both regimes, lowest turnover among the regime estimators). The denoised candidate was the best calibrated in turbulent windows and was kept as the crisis-regime specialist, not the default. The split clock over-corrected past one and thrashed, so it was rejected again. The hybrid was disadvantaged by raggedness, a reading the <a href="../research/foundation-covariance.html#e-2026-07-18-02">factor-model variants test</a> later overrode.</li>
+<li>All differences between the leading estimators were inside noise, so the pre-registered tiebreak fired: prefer the simpler, lower-turnover estimator.</li>
+<li>Weekly was confirmed primary. Stale-priced names moved crisis calibration only slightly.</li>
+</ul>
+<p><strong>Holdout note.</strong> The notebook’s final cell scored its pre-registered combination once on the sealed span against the single-regime benchmark and recorded the result in the spec’s validation section. The merged engine’s <a href="../research/holdout.html#e-2026-07-20-01">single-use holdout</a> was a separate, later scoring event.</p>
+</section>
+<section id="decision" class="level3">
+<h3 class="anchored" data-anchor-id="decision">Decision</h3>
+<p>The two-state model with the incumbent signal, filtered probabilities, and soft-pooled shrinkage covariances was frozen as the input to every downstream test. One attribution issue was left open on the record: the plain observable-projection construction was not in the in-regime grid, so the denoised candidate’s crisis edge could not be split between denoising and augmentation.</p>
+</section>
+<section id="where-it-led" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led">Where it led</h3>
+<ul>
+<li>The regime model was stress-tested from three directions before the merge: <a href="#e-2026-07-17-01">state count</a>, <a href="#e-2026-07-18-01">signal selection</a>, and the <a href="../research/tail-scenarios.html#e-2026-07-17-02">tail-risk model test</a>.</li>
+<li>It was merged into the engine as the regime-conditional covariance and used in the holdout.</li>
+<li>It then auditioned for five production jobs under the calibration and scenario programs and earned none: the <a href="#e-2026-07-21-01">regime battery</a>, the <a href="../research/risk-calibration.html#e-2026-07-21-03">conditional level correction</a>, the <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a>, the <a href="../research/tail-scenarios.html#e-2026-07-22-05">scenario-layer audit</a>, and the <a href="../research/tail-scenarios.html#e-2026-07-22-07">rebase</a> that led to the <a href="../research/tail-scenarios.html#e-2026-07-22-08">generator simplification</a>. The empirical case it was built on still stands; no implementation of it earned a keep.</li>
+</ul>
+</section>
+</section>
+<section id="e-2026-07-17-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-17-01">Regime state count: is a third regime real? (statistically real, decision-irrelevant; two states stand)</h2>
+<p><em>Logged 2026-07-17.</em></p>
+<p><em>A pre-registered five-part test of whether a third hidden-Markov state is a genuine regime or a Gaussian mixture absorbing kurtosis. The four structural tests passed, the decision-level arbiter failed, and by the rule fixed in advance two states stand.</em></p>
+<section id="question-1" class="level3">
+<h3 class="anchored" data-anchor-id="question-1">Question</h3>
+<p>The pre-registered production regime model has two states. An in-sample information criterion prefers three. Before that could tempt anyone, one question: is the third state a genuine regime, or a Gaussian mixture inventing a state to soak up the excess kurtosis of fat-tailed within-regime returns? Splitting a fat-tailed calm distribution into two Gaussians is the classic signature of a mixture absorbing kurtosis, and tail co-movement belongs in the scenario layer, not in the regime count.</p>
+</section>
+<section id="pre-registration-criteria-fixed-before-any-result" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-criteria-fixed-before-any-result">Pre-registration (criteria fixed before any result)</h3>
+<p><strong>Rule.</strong> Adopt three states only if all of A through D pass <strong>and</strong> E shows material decision-level improvement. Otherwise two states stand, the parsimony default. Failing to distinguish is an acceptable, honest outcome.</p>
+<ul>
+<li><strong>A, Student-t emissions survival (primary discriminator).</strong> Refit both models with multivariate Student-t emissions and per-state degrees of freedom, which lets a single state carry fat tails. Pass only if the information criteria still prefer three and the two lowest-volatility states stay distinct (a minimum emission-volatility ratio and a minimum stationary occupancy for every state).</li>
+<li><strong>B, parametric bootstrap likelihood-ratio test.</strong> The chi-squared test is invalid for k versus k plus one states (null on the parameter-space boundary). Simulate from the fitted two-state model, refit both on each simulated set, and require the real statistic to exceed the empirical null’s upper quantile.</li>
+<li><strong>C, persistence.</strong> Every state sticky; the extra state’s mean duration above a floor. A state that flickers over one or two observations is an outlier absorber.</li>
+<li><strong>D, negative control.</strong> Fit the three-state model to synthetic data from a known two-regime process; it must not manufacture a third state.</li>
+<li><strong>E, decision-level out-of-sample (the arbiter).</strong> The identical selection walk-forward, paired across arms with the same windows and portfolios, under two- versus three-state soft-pooling with the frozen shrinkage estimator. Power analysis reported first.</li>
+</ul>
+<p>Everything else was frozen: the in-regime estimator, the regime signal, weekly frequency, the embargo, the cap. The holdout was never touched.</p>
+</section>
+<section id="outcome-1" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-1">Outcome</h3>
+<p><strong>Result: A, B, C, D pass; E fails; two states stand.</strong> Notably not for the reason the prior guessed.</p>
+<ul>
+<li>Under Student-t emissions the two calm states did not collapse and the criteria still preferred three, so the third state is a statistically real distributional feature, not kurtosis. The estimated degrees of freedom localized the fat tails to the crisis state alone, with both calm states coming back near-Gaussian.</li>
+<li>The bootstrap likelihood ratio was overwhelming against the two-state null; all three states were sticky; on known two-regime data the model refused to invent a third.</li>
+<li><strong>But E failed, and that is decisive.</strong> The paired calibration improvement was indistinguishable from zero and slightly negative, overall and in turbulent windows, and the turbulent design was underpowered to detect even a large effect. Underpowered means cannot distinguish, which means the simpler model stands.</li>
+<li>Mechanically, the third state carves a moderate band out of the volatility continuum. It does not refine crisis; it thins the severe-crisis effective sample, making the crisis covariance noisier, so turbulent bias overshoots past one and its dispersion worsens. More precise categorization, worse risk forecast.</li>
+<li>A third state also carries a real complexity cost: three covariances in the scenario layer and a mean-preserving drift decomposition that becomes underdetermined.</li>
+</ul>
+</section>
+<section id="decision-1" class="level3">
+<h3 class="anchored" data-anchor-id="decision-1">Decision</h3>
+<p>Two states remained the frozen regime count for every downstream study. The third state went on the rejected list as real in-distribution but decision-irrelevant.</p>
+</section>
+<section id="where-it-led-1" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-1">Where it led</h3>
+<ul>
+<li>The degrees-of-freedom-by-state finding (fat tails live almost entirely in the crisis state) was the critical handoff to the <a href="../research/tail-scenarios.html#e-2026-07-17-02">tail-risk model test</a>, which tested per-regime tail fatness and found it did not clear the decision-level bar either.</li>
+<li>The regime count was never revisited. The Markov machinery as a whole was later retired from production; see the <a href="../research/tail-scenarios.html#e-2026-07-22-08">generator simplification</a>.</li>
+</ul>
+<blockquote class="blockquote">
+<p><strong>Correction (2026-11-17).</strong> “The Markov machinery as a whole was later retired from production” is not accurate: the regime model still sets the active universe and produces the displayed portfolio volatility and the factor variance shares behind the 0.35 dRATE cap. See <a href="#still-in-use">Still in use</a>.</p>
+</blockquote>
+</section>
+</section>
+<section id="e-2026-07-18-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-18-01">Regime signal selection: which signal makes the most trustworthy two-state model? (incumbent stands)</h2>
+<p><em>Logged 2026-07-18.</em></p>
+<p><em>A pre-registered sweep of data source, lookback, and stickiness prior for the hidden-Markov regime signal, selected on downstream tail calibration and cross-signal agreement rather than crisis recall. No challenger satisfied the three-part rule; the regime model is not a fragile knob.</em></p>
+<section id="question-2" class="level3">
+<h3 class="anchored" data-anchor-id="question-2">Question</h3>
+<p>The two-state model’s regime probabilities are the hinge of the whole tail pipeline, yet the signal it is fit on (an observable market factor plus a trailing volatility proxy) was chosen once and never swept. Which signal, across data source and lookback, produces the most trustworthy regime model?</p>
+<p>“Trustworthy” was defined precisely and is not “which one best matches the crises we remember”. There is no ground truth for whether a week was a crisis, so labels cannot be scored. Selection was on downstream tail calibration of the full pipeline and on cross-signal agreement. Crisis recovery (does it flag 2008, 2020, 2022) was a pass/fail gate, not a ranking metric.</p>
+</section>
+<section id="pre-registration-rule-fixed-before-looking-at-the-scores" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-rule-fixed-before-looking-at-the-scores">Pre-registration (rule fixed before looking at the scores)</h3>
+<p><strong>Frozen.</strong> Weekly frequency, two states, soft-pooled shrinkage within regime, the regime-mixture scenario generator, and the single-use holdout, never entered.</p>
+<p><strong>Two non-negotiable principles.</strong> Strict causality as a hard gate: every candidate was rebuilt on data truncated at each date and its value confirmed invariant to future data; anything failing was not scored (implied volatility was admitted as forward-looking but observed). And selection on robustness plus downstream calibration, not label accuracy: a signal that wins only at one lookback, or disagrees with every other signal, is fragile even if its point calibration is best.</p>
+<p><strong>Design.</strong> Candidate library across sources (observable factor plus realized volatility, realized volatility alone, realized volatility plus implied, implied level, drawdown, credit spread, dispersion, breadth, implied change) and lookbacks, with a sticky Dirichlet prior on the transition rows swept from none to high. Synthetic positive and negative controls on the harness. Per-candidate fits reported the crisis-recovery gate, persistence, and restart stability (report and gate only, never rank). Cross-signal agreement and a consensus regime built from the gate-passing set. A detection-lag table per crisis. The primary read: the full downstream pipeline (scenario generator plus walk-forward, filtered probabilities only, selection span only), scoring Kupiec, Christoffersen, and the ES-to-CVaR ratio on two portfolio geometries, plus the volatility-bias ratio. A robustness surface across lookbacks and the lookback stability of the regime series itself.</p>
+<p><strong>The three-part rule.</strong> A challenger unseats the incumbent only if it is all of: within-noise-best on tail calibration with coverage not rejected; among the most robust across lookbacks (flat calibration surface and stable regime series); and in high agreement with the cross-signal consensus, gate passed. If none qualifies, the incumbent stands.</p>
+</section>
+<section id="outcome-2" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-2">Outcome</h3>
+<p><strong>Result: the incumbent stands, and that is the strongest possible trust result.</strong></p>
+<ul>
+<li>Every candidate passed the causality audit. Both harness controls passed.</li>
+<li>Tail calibration is flat across the whole causal volatility family: every gate-passing signal lands in a narrow band of ES-to-CVaR ratios with coverage never rejected, and the spread across every reasonable signal is inside the sampling band implied by the sample. The incumbent sits mid-pack, better calibrated than most gate-passing candidates. There is no signal the pipeline can distinguish as better.</li>
+<li>The single best point estimate was a knife-edge: it lives in the least lookback-robust source, one of whose lookbacks fails the crisis gate outright and anti-correlates with consensus. The rule correctly discounts it.</li>
+<li>Adding implied volatility buys robustness, not calibration: the most lookback-stable and highest-consensus series is not better calibrated than the incumbent. A defensible alternative, not an improvement; the holdout, not this run, would have to arbitrate.</li>
+<li>Different-axis signals were correctly excluded: the credit spread misses the rates-driven 2022 bear, dispersion measures a co-movement regime rather than a volatility regime, and breadth carries no consensus. Flagged for a future co-movement-aware extension, not adopted for a magnitude-driven crisis covariance.</li>
+<li>The stickiness prior lengthens durations and damps flicker monotonically but does not improve downstream calibration; the default was retained.</li>
+<li><strong>The trust case.</strong> Several independently constructed causal signals recover the same crises, agree at high consensus, and drive the CVaR to the same calibration within noise. The regime model does not hinge on the one signal that was never swept.</li>
+</ul>
+</section>
+<section id="decision-2" class="level3">
+<h3 class="anchored" data-anchor-id="decision-2">Decision</h3>
+<p>The incumbent signal, weekly, at default stickiness, was frozen as a load-bearing input to every downstream test. Nothing changed.</p>
+</section>
+<section id="where-it-led-2" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-2">Where it led</h3>
+<ul>
+<li>The frozen regime model fed the <a href="../research/tail-scenarios.html#e-2026-07-17-02">tail-risk model test</a>, the <a href="../research/foundation-covariance.html#e-2026-07-18-02">factor-model variants test</a>, and the <a href="../research/tail-scenarios.html#e-2026-07-18-04">drift test</a>, and was merged into the engine.</li>
+<li>The question this test answered (is the regime model fragile in its signal?) turned out to be the wrong axis of fragility. The later programs found the model robust to its signal and unnecessary to the predictive covariance; see the <a href="../research/risk-calibration.html#e-2026-07-21-03">conditional level-correction study</a> and the <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a>.</li>
+</ul>
+</section>
+</section>
+<section id="e-2026-07-21-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-21-01">Regime battery: does the Markov switch fix exception clustering? (discrete switch not justified)</h2>
+<p><em>Logged 2026-07-21.</em></p>
+<p><em>Scores the causal two-state Markov predictive on the same weekly PIT ladder as the six single-regime estimators, against matched continuous-volatility baselines, so any gain is attributed to the discrete switch itself. Markov was the best dynamic row but missed the pre-registered bar and left the clustering rejection intact.</em></p>
+<section id="question-3" class="level3">
+<h3 class="anchored" data-anchor-id="question-3">Question</h3>
+<p>The <a href="../research/risk-calibration.html#e-2026-07-20-03">weekly battery</a> had shown that every single-regime estimator rejects exceedance independence, which was read as evidence for the regime switch. This script closed the loop: does the Markov regime model fix the exception clustering, and is the discrete switch specifically, rather than generic dynamic volatility, what earns it?</p>
+</section>
+<section id="design" class="level3">
+<h3 class="anchored" data-anchor-id="design">Design</h3>
+<p><strong>The controlled variable.</strong> Every model predicted the same structure: the observable-factor loadings and the residual block (latent components plus idiosyncratic diagonal) came from the identical trailing hybrid fit used by the weekly battery, asserted equal each week. Only the observable-factor covariance dynamics differed: frozen (the trailing-window estimate), exponentially weighted, GARCH with dynamic conditional correlation, and the Markov mixture (a two-state model on the factors, filtered, one step ahead, with zero state means so the between-regime mean term vanishes and the rows are apples to apples). The observable block carries the systematic volatility clustering and is a fixed, directly observed, causal low-dimensional series, which is why it was the isolated moving part.</p>
+<p><strong>Mixture-aware PIT.</strong> The Markov predictive is a two-component mixture, so its distance is not chi-squared even when the model is right. For that row the PIT is empirical: causal draws from the actual mixture each week, with the observed distance ranked among them. The empirical PIT was defined here and validated by a mixture control, and became the standard for every later Student-t or mixture predictive. Primary discriminators were the two mixture-robust statistics, the independence likelihood ratio and the bias ratio with exception count; ranking by statistic, not p-value.</p>
+<p><strong>Causality, asserted.</strong> Trailing windows end strictly before the scored week; model parameters refit on expanding windows at a fixed cadence using only prior data, filtering forward between refits; the exponentially weighted recursion initialized from a burn-in that ends before the first test week; weekly, non-overlapping.</p>
+</section>
+<section id="outcome-3" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-3">Outcome</h3>
+<p><strong>Result: “discrete switch not justified” as a clustering fix.</strong> Markov was the best dynamic row, beating both continuous-volatility baselines, so the discrete switch does add something beyond generic adaptive volatility. But it missed the pre-registered “clearly negative” bar and left the independence rejection massively intact. Volatility dynamics of any flavor, discrete or continuous, do not fix the clustering.</p>
+</section>
+<section id="decision-3" class="level3">
+<h3 class="anchored" data-anchor-id="decision-3">Decision</h3>
+<p>Nothing changed in production. The clustering job was assigned elsewhere: the <a href="../research/risk-calibration.html#e-2026-07-21-02">slice study</a> tested within-regime tail structure and found Student-t innovations eliminate the clustering on a sealed holdout. At this point the regime model’s standing jobs (between-regime covariance reorganization, the scenario mixture tail) were unchanged. This was the first of what the record now calls the five failed auditions of the Markov machinery.</p>
+</section>
+<section id="where-it-led-3" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-3">Where it led</h3>
+<ul>
+<li>Audition two: the <a href="../research/risk-calibration.html#e-2026-07-21-03">conditional level correction</a>, where the regime model was the candidate conditioner and failed its negative control.</li>
+<li>Auditions three to five: the <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a> (predictive pooling), the <a href="../research/tail-scenarios.html#e-2026-07-22-05">scenario-layer audit</a> (weekly tail mass), and the <a href="../research/tail-scenarios.html#e-2026-07-22-07">rebase</a> (multi-period dispersion), after which the mixture was <a href="../research/tail-scenarios.html#e-2026-07-22-08">retired from the generator</a>.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

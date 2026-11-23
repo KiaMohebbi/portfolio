@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-07-24">
+<meta name="description" content="How the model portfolio’s expected returns were built, tested against causally reconstructed evidence, simplified to sleeve level and then given a tilt shaped by the certified covariance.">
+
+<title>Expected returns – Quantitative Research Journal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../_support/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Quantitative Research Journal</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../library.html"> 
+<span class="menu-text">Research and recaps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#e-2026-07-18-03" id="toc-e-2026-07-18-03" class="nav-link active" data-scroll-target="#e-2026-07-18-03">Expected returns build: consensus CMAs projected through the frozen loadings (built; later simplified)</a>
+  <ul class="collapse">
+  <li><a href="#what-this-built" id="toc-what-this-built" class="nav-link" data-scroll-target="#what-this-built">What this built</a></li>
+  <li><a href="#construction-and-locked-design" id="toc-construction-and-locked-design" class="nav-link" data-scroll-target="#construction-and-locked-design">Construction and locked design</a></li>
+  <li><a href="#tests-design-fixed-up-front-show-the-work" id="toc-tests-design-fixed-up-front-show-the-work" class="nav-link" data-scroll-target="#tests-design-fixed-up-front-show-the-work">Tests (design fixed up front; show the work)</a></li>
+  <li><a href="#outcome-and-the-honesty-block" id="toc-outcome-and-the-honesty-block" class="nav-link" data-scroll-target="#outcome-and-the-honesty-block">Outcome and the honesty block</a></li>
+  <li><a href="#where-it-led" id="toc-where-it-led" class="nav-link" data-scroll-target="#where-it-led">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-23-01" id="toc-e-2026-07-23-01" class="nav-link" data-scroll-target="#e-2026-07-23-01">Mu-perturbation sensitivity: how much do the shipped decisions move under plausible expected-return error? (descriptive; composition-fragile, risk-firewalled)</a>
+  <ul class="collapse">
+  <li><a href="#question" id="toc-question" class="nav-link" data-scroll-target="#question">Question</a></li>
+  <li><a href="#pre-registration-hash-written-before-any-scoring" id="toc-pre-registration-hash-written-before-any-scoring" class="nav-link" data-scroll-target="#pre-registration-hash-written-before-any-scoring">Pre-registration (hash written before any scoring)</a></li>
+  <li><a href="#outcome" id="toc-outcome" class="nav-link" data-scroll-target="#outcome">Outcome</a></li>
+  <li><a href="#decision-and-the-aim-statement-for-the-mu-program" id="toc-decision-and-the-aim-statement-for-the-mu-program" class="nav-link" data-scroll-target="#decision-and-the-aim-statement-for-the-mu-program">Decision and the aim statement for the mu program</a></li>
+  <li><a href="#where-it-led-1" id="toc-where-it-led-1" class="nav-link" data-scroll-target="#where-it-led-1">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-23-02" id="toc-e-2026-07-23-02" class="nav-link" data-scroll-target="#e-2026-07-23-02">Rank-IC study: does the expected-return cross-section carry real ordering information? (validates mechanically; the content is sleeve-level only, and the equity ordering inverts under causal loadings)</a>
+  <ul class="collapse">
+  <li><a href="#question-registered-verbatim" id="toc-question-registered-verbatim" class="nav-link" data-scroll-target="#question-registered-verbatim">Question (registered verbatim)</a></li>
+  <li><a href="#pre-registration-frozen-before-any-outcome-scoring" id="toc-pre-registration-frozen-before-any-outcome-scoring" class="nav-link" data-scroll-target="#pre-registration-frozen-before-any-outcome-scoring">Pre-registration (frozen before any outcome scoring)</a></li>
+  <li><a href="#outcome-1" id="toc-outcome-1" class="nav-link" data-scroll-target="#outcome-1">Outcome</a></li>
+  <li><a href="#decision" id="toc-decision" class="nav-link" data-scroll-target="#decision">Decision</a></li>
+  <li><a href="#where-it-led-2" id="toc-where-it-led-2" class="nav-link" data-scroll-target="#where-it-led-2">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-23-03" id="toc-e-2026-07-23-03" class="nav-link" data-scroll-target="#e-2026-07-23-03">Bond-sleeve level study: does the yield anchor predict sleeve returns at the level? (SLEEVE ANCHOR VALIDATES; the machinery is the raw yield)</a>
+  <ul class="collapse">
+  <li><a href="#question-registered" id="toc-question-registered" class="nav-link" data-scroll-target="#question-registered">Question (registered)</a></li>
+  <li><a href="#pre-registration-frozen-before-any-outcome-scoring-1" id="toc-pre-registration-frozen-before-any-outcome-scoring-1" class="nav-link" data-scroll-target="#pre-registration-frozen-before-any-outcome-scoring-1">Pre-registration (frozen before any outcome scoring)</a></li>
+  <li><a href="#outcome-2" id="toc-outcome-2" class="nav-link" data-scroll-target="#outcome-2">Outcome</a></li>
+  <li><a href="#decision-1" id="toc-decision-1" class="nav-link" data-scroll-target="#decision-1">Decision</a></li>
+  <li><a href="#where-it-led-3" id="toc-where-it-led-3" class="nav-link" data-scroll-target="#where-it-led-3">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-23-04" id="toc-e-2026-07-23-04" class="nav-link" data-scroll-target="#e-2026-07-23-04">Mu simplification adopted: production expected returns become sleeve-level (all gates pass; the consensus cross-section retired to rollback)</a>
+  <ul class="collapse">
+  <li><a href="#what-this-was" id="toc-what-this-was" class="nav-link" data-scroll-target="#what-this-was">What this was</a></li>
+  <li><a href="#pre-registration-every-gate-band-a-pre-registered-number-frozen-before-any-scoring" id="toc-pre-registration-every-gate-band-a-pre-registered-number-frozen-before-any-scoring" class="nav-link" data-scroll-target="#pre-registration-every-gate-band-a-pre-registered-number-frozen-before-any-scoring">Pre-registration (every gate band a pre-registered number, frozen before any scoring)</a></li>
+  <li><a href="#outcome-3" id="toc-outcome-3" class="nav-link" data-scroll-target="#outcome-3">Outcome</a></li>
+  <li><a href="#decision-2" id="toc-decision-2" class="nav-link" data-scroll-target="#decision-2">Decision</a></li>
+  <li><a href="#where-it-led-4" id="toc-where-it-led-4" class="nav-link" data-scroll-target="#where-it-led-4">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-24-01" id="toc-e-2026-07-24-01" class="nav-link" data-scroll-target="#e-2026-07-24-01">Factor-implied expected returns: does pricing the risky sleeve through factor exposures beat the uniform block? (UNIFORM BLOCK STANDS)</a>
+  <ul class="collapse">
+  <li><a href="#question-registered-1" id="toc-question-registered-1" class="nav-link" data-scroll-target="#question-registered-1">Question (registered)</a></li>
+  <li><a href="#pre-registration-frozen-before-any-scoring" id="toc-pre-registration-frozen-before-any-scoring" class="nav-link" data-scroll-target="#pre-registration-frozen-before-any-scoring">Pre-registration (frozen before any scoring)</a></li>
+  <li><a href="#outcome-4" id="toc-outcome-4" class="nav-link" data-scroll-target="#outcome-4">Outcome</a></li>
+  <li><a href="#decision-3" id="toc-decision-3" class="nav-link" data-scroll-target="#decision-3">Decision</a></li>
+  <li><a href="#where-it-led-5" id="toc-where-it-led-5" class="nav-link" data-scroll-target="#where-it-led-5">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-24-02" id="toc-e-2026-07-24-02" class="nav-link" data-scroll-target="#e-2026-07-24-02">Observable anchors for the alternative sleeves: trend, carry, and bank loans (UNIFORM BLOCK STANDS for all three; the block’s over-credits are now documented at interval grade)</a>
+  <ul class="collapse">
+  <li><a href="#question-registered-2" id="toc-question-registered-2" class="nav-link" data-scroll-target="#question-registered-2">Question (registered)</a></li>
+  <li><a href="#pre-registration-frozen-after-the-census-before-any-scoring" id="toc-pre-registration-frozen-after-the-census-before-any-scoring" class="nav-link" data-scroll-target="#pre-registration-frozen-after-the-census-before-any-scoring">Pre-registration (frozen after the census, before any scoring)</a></li>
+  <li><a href="#outcome-5" id="toc-outcome-5" class="nav-link" data-scroll-target="#outcome-5">Outcome</a></li>
+  <li><a href="#decision-4" id="toc-decision-4" class="nav-link" data-scroll-target="#decision-4">Decision</a></li>
+  <li><a href="#where-it-led-6" id="toc-where-it-led-6" class="nav-link" data-scroll-target="#where-it-led-6">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-24-03" id="toc-e-2026-07-24-03" class="nav-link" data-scroll-target="#e-2026-07-24-03">Reverse-optimization expected returns: shape from the certified covariance, level from the validated block (EARNS ADOPTION ROUTING at the inverse-volatility reference and the smallest blend step)</a>
+  <ul class="collapse">
+  <li><a href="#question-registered-3" id="toc-question-registered-3" class="nav-link" data-scroll-target="#question-registered-3">Question (registered)</a></li>
+  <li><a href="#pre-registration-frozen-before-any-scoring-1" id="toc-pre-registration-frozen-before-any-scoring-1" class="nav-link" data-scroll-target="#pre-registration-frozen-before-any-scoring-1">Pre-registration (frozen before any scoring)</a></li>
+  <li><a href="#outcome-6" id="toc-outcome-6" class="nav-link" data-scroll-target="#outcome-6">Outcome</a></li>
+  <li><a href="#decision-5" id="toc-decision-5" class="nav-link" data-scroll-target="#decision-5">Decision</a></li>
+  <li><a href="#where-it-led-7" id="toc-where-it-led-7" class="nav-link" data-scroll-target="#where-it-led-7">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-24-04" id="toc-e-2026-07-24-04" class="nav-link" data-scroll-target="#e-2026-07-24-04">Reverse-optimization adoption executed: production expected returns become sleeve-level plus a covariance-sourced tilt (all gates pass; the conditionality clause executed, not bypassed)</a>
+  <ul class="collapse">
+  <li><a href="#what-this-was-1" id="toc-what-this-was-1" class="nav-link" data-scroll-target="#what-this-was-1">What this was</a></li>
+  <li><a href="#pre-registration-frozen-with-every-gate-band-a-study-record-number" id="toc-pre-registration-frozen-with-every-gate-band-a-study-record-number" class="nav-link" data-scroll-target="#pre-registration-frozen-with-every-gate-band-a-study-record-number">Pre-registration (frozen with every gate band a study-record number)</a></li>
+  <li><a href="#outcome-7" id="toc-outcome-7" class="nav-link" data-scroll-target="#outcome-7">Outcome</a></li>
+  <li><a href="#decision-6" id="toc-decision-6" class="nav-link" data-scroll-target="#decision-6">Decision</a></li>
+  <li><a href="#where-it-led-8" id="toc-where-it-led-8" class="nav-link" data-scroll-target="#where-it-led-8">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-24-05" id="toc-e-2026-07-24-05" class="nav-link" data-scroll-target="#e-2026-07-24-05">Mean-reversion effect size: do price-displacement signals predict deviations from the deployed expected returns? (NO MEASURABLE EFFECT in all three sleeves; the null stands)</a>
+  <ul class="collapse">
+  <li><a href="#question-registered-4" id="toc-question-registered-4" class="nav-link" data-scroll-target="#question-registered-4">Question (registered)</a></li>
+  <li><a href="#pre-registration-frozen-before-any-scoring-2" id="toc-pre-registration-frozen-before-any-scoring-2" class="nav-link" data-scroll-target="#pre-registration-frozen-before-any-scoring-2">Pre-registration (frozen before any scoring)</a></li>
+  <li><a href="#outcome-8" id="toc-outcome-8" class="nav-link" data-scroll-target="#outcome-8">Outcome</a></li>
+  <li><a href="#decision-7" id="toc-decision-7" class="nav-link" data-scroll-target="#decision-7">Decision</a></li>
+  <li><a href="#where-it-led-9" id="toc-where-it-led-9" class="nav-link" data-scroll-target="#where-it-led-9">Where it led</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+<div class="site-disclaimer" role="note">
+<p>This site documents a personal research project. Nothing here is investment advice or a recommendation to buy or sell any security. The portfolio shown is a model portfolio; no real money is invested. Backtested and projected figures are hypothetical and do not predict future results.</p>
+</div>
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Expected returns</h1>
+</div>
+
+<div>
+  <div class="description">
+    How the model portfolio’s expected returns were built, tested against causally reconstructed evidence, simplified to sleeve level and then given a tilt shaped by the certified covariance.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 24, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Study</th>
+<th>Date</th>
+<th>Status</th>
+<th>Reason (from its record)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="../research/expected-returns.html#e-2026-07-18-03">Expected returns build</a></td>
+<td>2026-07-18</td>
+<td>adopted</td>
+<td>“BUILT”, later “SIMPLIFIED TO SLEEVE-LEVEL” (model specification, expected-returns status line)</td>
+</tr>
+<tr class="even">
+<td><a href="../research/expected-returns.html#e-2026-07-23-01">Expected-return sensitivity</a></td>
+<td>2026-07-23</td>
+<td>adopted</td>
+<td>“real in weights, firewalled in risk” (sensitivity study report); descriptive, with no decision of its own; its finding is listed first in the evidence chain of the expected returns of record (model specification)</td>
+</tr>
+<tr class="odd">
+<td><a href="../research/expected-returns.html#e-2026-07-23-02">Rank-IC study</a></td>
+<td>2026-07-23</td>
+<td>rejected</td>
+<td>Own verdict “CROSS-SECTION VALIDATES”, mechanical (rank-IC study report). Decision of record: the within-sleeve cross-section is rejected, retired by the simplification, because the validated content “is sleeve-level only”; the between-sleeve gap is kept (model specification)</td>
+</tr>
+<tr class="even">
+<td><a href="../research/expected-returns.html#e-2026-07-23-03">Bond-sleeve level study</a></td>
+<td>2026-07-23</td>
+<td>adopted</td>
+<td>“SLEEVE ANCHOR VALIDATES” (bond-sleeve level study report); the raw yield it validated became the defensive-sleeve expected return in the simplification (changelog)</td>
+</tr>
+<tr class="odd">
+<td><a href="../research/expected-returns.html#e-2026-07-23-04">Sleeve-level simplification</a></td>
+<td>2026-07-23</td>
+<td>adopted</td>
+<td>“ALL GATES PASS” (simplification report)</td>
+</tr>
+<tr class="even">
+<td><a href="../research/expected-returns.html#e-2026-07-24-01">Factor-implied expected returns</a></td>
+<td>2026-07-24</td>
+<td>rejected</td>
+<td>“UNIFORM BLOCK STANDS” (factor-implied study report)</td>
+</tr>
+<tr class="odd">
+<td><a href="../research/expected-returns.html#e-2026-07-24-02">Observable anchors for the alternative sleeves</a></td>
+<td>2026-07-24</td>
+<td>rejected</td>
+<td>Own verdicts “UNDERPOWERED” for managed futures and “UNIFORM BLOCK STANDS” for the dollar and bank loans (observable-anchor study report). Decision of record: “UNIFORM BLOCK STANDS for all three sleeves” (model specification, rejected list), because “no adoption path opens from this study” (observable-anchor study report)</td>
+</tr>
+<tr class="even">
+<td><a href="../research/expected-returns.html#e-2026-07-24-03">Reverse-optimization expected returns</a></td>
+<td>2026-07-24</td>
+<td>adopted</td>
+<td>“EARNS ADOPTION ROUTING” (reverse-optimization study report); the routed blend was adopted by the adoption study (reverse-optimization adoption report)</td>
+</tr>
+<tr class="odd">
+<td><a href="../research/expected-returns.html#e-2026-07-24-04">Reverse-optimization adoption</a></td>
+<td>2026-07-24</td>
+<td>adopted</td>
+<td>“ALL GATES PASS” (reverse-optimization adoption report)</td>
+</tr>
+<tr class="even">
+<td><a href="../research/expected-returns.html#e-2026-07-24-05">Mean-reversion effect size</a></td>
+<td>2026-07-24</td>
+<td>rejected</td>
+<td>“NO MEASURABLE EFFECT” in all three sleeves (mean-reversion study report); the signal family is on the rejected list (model specification)</td>
+</tr>
+</tbody>
+</table>
+<p>This program asked what the model portfolio’s expected returns should be built from, and how much of their structure holds up under causal, pre-registered tests. The original layer projected consensus capital-market assumptions through the frozen factor loadings; the studies that followed found that what validated was the bond yields and the ordering of risk assets above defensives (an ordering the records call epoch-dependent), so the within-sleeve cross-section was retired and the expected returns became sleeve-level. A factor-implied cross-section and observable anchors for the alternative sleeves then failed their tests, while a tilt whose shape comes from the certified covariance passed every gate and was adopted on top of the sleeve-level base. A closing measurement found no measurable mean-reversion effect, and the adopted construction stands as the expected returns of record. One question about it is open and not started (model specification, open decisions, item 13): with the T-bill rate in the STARR objective, the max-STARR tangency on the 2026-07-17 snapshot sits next to the minimum-CVaR end of the frontier, which the specification suspects is an artifact of these expected returns, since they price low-beta risky names well above the bill. The delivered rule holds these expected returns fixed and does not close it.</p>
+<section id="e-2026-07-18-03" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-18-03">Expected returns build: consensus CMAs projected through the frozen loadings (built; later simplified)</h2>
+<p><em>Logged 2026-07-18.</em></p>
+<p><em>The original mu layer: factor premia backed out of forward-looking consensus capital-market assumptions through the frozen hybrid loadings, an implied-alpha keep-fraction chosen by cross-sectional rank IC, and a yield-anchored bond sleeve. The ranking and the bond level were tested; the equity level cannot be.</em></p>
+<section id="what-this-built" class="level3">
+<h3 class="anchored" data-anchor-id="what-this-built">What this built</h3>
+<p>The strategic, ten-year, unconditional expected-return vector for the universe, built by projecting consensus capital-market assumptions through the same frozen factor loadings the risk model uses. Everything else was frozen: the weekly spliced data, the hybrid loadings from the <a href="../research/foundation-covariance.html#e-2026-07-18-02">factor-model variants test</a>, the regime model, the tail model, and the holdout.</p>
+<p><strong>The core principle: expected returns and covariance are not symmetric.</strong> For covariance, realized factor returns are observed every week, so second moments are an estimation problem solved with more data. For expected returns the need is factor premia, and means cannot be estimated from historical averages; that is the sample-mean error-maximizer the whole consensus approach exists to avoid (means need calendar span, not observation count). So the projection machinery mirrors risk, through the same loadings, but the inputs are forward-looking consensus premia, never historical factor means.</p>
+</section>
+<section id="construction-and-locked-design" class="level3">
+<h3 class="anchored" data-anchor-id="construction-and-locked-design">Construction and locked design</h3>
+<ul>
+<li>Factor premia backed out of the consensus vector by generalized least squares through the frozen loadings, with weights that down-weight buckets whose assumptions are reasoned fills rather than genuinely published consensus (an honesty flag carried per bucket).</li>
+<li>Only the observable macro factors are priced. The latent random-matrix factors are real for covariance but their premia are scale-arbitrary and flip sign under reweighting; they are reported and never routed into expected returns.</li>
+<li>The implied alpha is the residual each assumption leaves unexplained; a keep-fraction sets how much of it survives, between pure projection (maximum denoising) and trusting every bucket number literally.</li>
+<li>The bond sleeve gets a per-ticker starting-yield override rather than the shared bucket assumption, which pulled the over-stated long-duration numbers down.</li>
+<li>Geometric consensus figures converted to arithmetic; a ten-year strategic horizon, not a one-year forecast; Black-Litterman deferred with the explicit-alpha seam left in place; a custom-strategy hook that prices any strategy’s betas through the same premia.</li>
+</ul>
+</section>
+<section id="tests-design-fixed-up-front-show-the-work" class="level3">
+<h3 class="anchored" data-anchor-id="tests-design-fixed-up-front-show-the-work">Tests (design fixed up front; show the work)</h3>
+<ul>
+<li><strong>Test 1, cross-sectional rank IC (keep-fraction selection).</strong> Pure projection roughly doubled the out-of-sample ranking power of the raw consensus cross-section; the IC was flat over the low end of the keep-fraction range, so the upper end of that flat band was chosen to retain as much deliberate cross-section as the test permits. Only a small share of the consensus cross-section is factor-explained; the rest is deliberate bucket alpha, which ranks better when treated as un-rankable, so genuine conviction belongs in the views layer, not a higher keep-fraction. <strong>Passed.</strong></li>
+<li><strong>Test 2, bond yield anchoring.</strong> Realized long-horizon return tracks starting yield almost one for one. <strong>Passed.</strong></li>
+<li><strong>Test 3, equity level bias.</strong> Overlapping long-horizon windows leave roughly one effective observation. <strong>Underpowered by construction; selects nothing.</strong></li>
+<li><strong>Test 4, consistency.</strong> Premia signs economically right; implied alpha small and mean-near-zero; premia stable across windows. <strong>Passed.</strong></li>
+</ul>
+</section>
+<section id="outcome-and-the-honesty-block" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-and-the-honesty-block">Outcome and the honesty block</h3>
+<p><strong>Result: built and merged.</strong> What was tested and passed: the cross-sectional ranking and the bond-sleeve level. What was not and cannot be tested: the equity level, which rests on consensus faith by construction. The record’s own warning, kept verbatim in spirit: a good backtest does not mean the expected returns were right; the portfolio backtest validates the allocation machinery, never the assumptions; and no equity curve may launder into “the return assumptions were validated”.</p>
+<p>Regime-conditional expected returns were rejected as market timing with the wrong sign (realized crisis returns are the premium being paid out, not evidence forward premia fell). Historical factor means for the premia went on the rejected list as the error-maximizer in factor costume.</p>
+</section>
+<section id="where-it-led" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led">Where it led</h3>
+<p>The mu program that followed re-examined every component of this layer under governed, causal reconstruction. The <a href="../research/expected-returns.html#e-2026-07-23-02">rank-IC study</a> reinterpreted Test 1 as a keep-fraction selection curve rather than validation and found the validated content is sleeve-level only, with the within-sleeve ordering indistinguishable-to-inverted under causal loadings. The <a href="../research/expected-returns.html#e-2026-07-23-03">bond-sleeve level study</a> confirmed the yield anchor at the level and found the machinery beyond the raw yield earns nothing. The <a href="../research/expected-returns.html#e-2026-07-23-04">mu simplification</a> then retired the cross-section and the keep-fraction (retired, not condemned) while keeping the premia machinery for the custom-strategy hook. This layer is preserved bit-for-bit as the deeper rollback of the running model; see the <a href="../research/optimizer-delivered-rule.html#model-of-record">Current Model</a> page.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Note (2026-11-17)">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Note (2026-11-17)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The sensitivity entry below describes the earlier rule, the frontier point nearest a chosen monthly CVaR budget, which was replaced on 2026-11-17 and is now the shadow (see <a href="../research/optimizer-delivered-rule.html#after-july">After July</a>). Its remark that the STARR tangency sits essentially at minimum CVaR was made with the risk-free rate set to zero in the objective and with the expected returns then in production (consensus capital-market assumptions projected through the frozen loadings); a dated correction of 2026-11-16 records that finding as an artifact of the zero rate: on the 2026-07-17 menu the zero-rate tangency earns less than the T-bill.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="e-2026-07-23-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-23-01">Mu-perturbation sensitivity: how much do the shipped decisions move under plausible expected-return error? (descriptive; composition-fragile, risk-firewalled)</h2>
+<p><em>Logged 2026-07-23.</em></p>
+<p><em>The opening characterization of the expected-returns program. Plausible error in the expected-return layer moves a large share of the book and flips top holdings, yet leaves tail risk pinned by the CVaR budget and realized outcomes unchanged at the median. The plausible error is the same size as the whole signal; the bond yield anchor is the highest-leverage input.</em></p>
+<section id="question" class="level3">
+<h3 class="anchored" data-anchor-id="question">Question</h3>
+<p>How sensitive are the shipped optimizer’s decisions (weights, risk profile, realized outcome) to plausible errors in the expected-return layer? Descriptive: no adoption, no winner, no engine change, read-only on the engine.</p>
+</section>
+<section id="pre-registration-hash-written-before-any-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-hash-written-before-any-scoring">Pre-registration (hash written before any scoring)</h3>
+<p><strong>Decision object: the shipped portfolio.</strong> The live allocation selects the CVaR-efficient frontier point nearest a monthly CVaR budget (maximize expected return subject to the budget, fully invested, long-only, per-asset cap), the point from the <a href="../research/optimizer-delivered-rule.html#e-2026-07-19-01">frontier</a> machinery. In most evaluation weeks the budget binds; in a few deep-volatility weeks the minimum feasible CVaR exceeds it and the shipped point is the leftmost point, the faithful nearest-available rule. The STARR tangency sits essentially at minimum CVaR and is expected-return-insensitive; risk parity is expected-return-invariant by construction, the robustness floor.</p>
+<p><strong>Faithful injection.</strong> Perturb the belief (the consensus vector for the projected sleeve, the yield anchor for the bond sleeve) and re-derive the final expected returns through the exact production construction, reproduced to machine zero. Scenarios held fixed at each week’s base cloud, so a perturbation is a pure objective swap over a fixed feasible set.</p>
+<p><strong>Perturbation families</strong> at a plausible-error unit anchored to the data (the median of the rolling realized-mean-versus-anchor error and the standard error of a multi-year mean), run at half, one, and two units: independent noise; factor-aligned (shared) error; a common level shift; an adjacent-rank scramble that preserves magnitudes; and error in the bond yield-anchor sleeve. A shrinkage-interaction sweep. A representative panel of evaluation weeks split calm, mid, and stress by the frozen volatility z-score. Metrics: weight movement, turnover, top-holding flips, risk drift under the unperturbed cloud, and realized next-quarter outcome of the perturbed versus base weights, in-sample.</p>
+<p><strong>Side-check.</strong> Propagate the belief error into the scenario cloud location too and re-solve, to test whether holding scenarios fixed is justified.</p>
+</section>
+<section id="outcome" class="level3">
+<h3 class="anchored" data-anchor-id="outcome">Outcome</h3>
+<p><strong>Six findings, from the report.</strong></p>
+<ol type="1">
+<li><strong>High weight sensitivity, low realized sensitivity.</strong> A one-unit error moves a large share of the book and flips a top holding in most draws, yet CVaR stays pinned at the budget (every perturbed point sits on it) and the median realized outcome cost is essentially zero with a wide interval. Expected-return error is uncompensated noise in composition, not realized loss, and it cannot degrade tail risk.</li>
+<li><strong>Signal equals error.</strong> The plausible error unit is a multiple of the cross-sectional spread of the expected returns themselves, and a one-unit perturbation moves weights about as far as production expected returns move them from the pure-risk portfolio. The cross-section is trusted at the edge of its own noise floor.</li>
+<li><strong>Ranks matter as much as levels.</strong> The adjacent-rank scramble, the gentlest ordering error, is among the most damaging.</li>
+<li><strong>The bond yield-anchor sleeve is the single highest-leverage input</strong>, and the common level shift is strongly asymmetric because the bond sleeve is anchored rather than shifted, so lowering equity assumptions stampedes the book into bonds. It is also the one part of the layer that is testable at the level.</li>
+<li><strong>Shrinkage is a mild lever</strong>, protecting against independent error but not factor-aligned error.</li>
+<li><strong>Robustness is counter-cyclical</strong>: error matters most in calm and least in stress, because the budget binds hardest in high volatility and forces the robust leftmost point.</li>
+</ol>
+<p><strong>Side-check, reported honestly against the prereg’s expectation.</strong> The cloud channel is not negligible at the largest scale, so the headline sensitivities are a lower bound.</p>
+</section>
+<section id="decision-and-the-aim-statement-for-the-mu-program" class="level3">
+<h3 class="anchored" data-anchor-id="decision-and-the-aim-statement-for-the-mu-program">Decision and the aim statement for the mu program</h3>
+<p>Nothing changed. The report set the program’s order: first, the make-or-break question of whether the equity and alternatives cross-section beats equal expected returns out of sample, net of its own error (<a href="../research/expected-returns.html#e-2026-07-23-02">rank-IC study</a>); second, pin the bond yield-anchor sleeve hard (<a href="../research/expected-returns.html#e-2026-07-23-03">bond-sleeve level study</a>); deprioritize the common equity-premium level, which the budget already neutralizes. Urgency was rated moderate, not extreme: the risk posture is firewalled. The finding that cross-section quality is immaterial to outcomes was recorded as conditional on the current duration-heavy, risk-firewalled posture, the seed of the binding conditionality clause that now sits in the spec.</p>
+</section>
+<section id="where-it-led-1" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-1">Where it led</h3>
+<p>The whole mu program followed the order set here, through the <a href="../research/expected-returns.html#e-2026-07-23-04">simplification</a> and the later <a href="../research/expected-returns.html#e-2026-07-24-04">reverse-optimization adoption</a>, whose gates reuse this study’s frozen evaluation panel for risk non-degradation.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Own verdict and decision of record">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Own verdict and decision of record
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The rank-IC report’s own verdict is “CROSS-SECTION VALIDATES” (mechanical, prereg-bound), scored on the causal reconstruction at the pre-registered primary cell. The decision of record puts the within-sleeve “CMA cross-section” on the rejected list, retired by the simplification, and keeps the between-sleeve gap as “the one validated rank content”. The model specification gives the reason: the validated content of the ranking “is sleeve-level only; within-sleeve is indistinguishable-to-inverted under causal loadings”. The frozen-loadings variant was “reported, never verdict-driving”; the sign reversal between frozen and causal loadings is in the equities-only ordering, not in the verdict.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="e-2026-07-23-02" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-23-02">Rank-IC study: does the expected-return cross-section carry real ordering information? (validates mechanically; the content is sleeve-level only, and the equity ordering inverts under causal loadings)</h2>
+<p><em>Logged 2026-07-23.</em></p>
+<p><em>A pre-registered, causally reconstructed test of whether production expected returns’ asset ordering contains out-of-sample information net of its own error. The mechanical verdict at the primary horizon passed, but attribution showed the validated content is the between-sleeve split only; within-sleeve ordering is indistinguishable-to-inverted, the frozen-loadings look-ahead leak was quantified, and two standing methodology rules came out of it.</em></p>
+<section id="question-registered-verbatim" class="level3">
+<h3 class="anchored" data-anchor-id="question-registered-verbatim">Question (registered verbatim)</h3>
+<p>Does production expected returns’ asset ordering contain real out-of-sample information, net of its own error, versus equal-expected-return and zero-expected-return baselines and a naive momentum rank? Motivated by the <a href="../research/expected-returns.html#e-2026-07-23-01">sensitivity study</a>: the plausible error is a multiple of the cross-sectional spread and optimizer sensitivity is rank-dominated.</p>
+</section>
+<section id="pre-registration-frozen-before-any-outcome-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-before-any-outcome-scoring">Pre-registration (frozen before any outcome scoring)</h3>
+<p><strong>Construction under test.</strong> The production layer from the <a href="../research/expected-returns.html#e-2026-07-18-03">expected-returns build</a>: factor projection plus the keep-fraction of implied alpha for the risky sleeve, the starting-yield override for the bond sleeve.</p>
+<p><strong>Causal reconstruction.</strong> Production expected returns reproduced at each weekly start using only information available then: point-in-time yields, the equity-premium vintages of each prior year, and annual causal expanding-window refits of the loadings, over the sub-universe that can be reconstructed point-in-time. The reproduction was checked against the frozen production vector. Variants: the frozen production loadings (non-causal, longer panel, kept to measure the leak), no bond override, the raw point-in-time consensus, pure projection with zero keep-fraction, and a trailing-return momentum rank.</p>
+<p><strong>Scoring and nulls.</strong> Spearman rank IC against forward realized rankings at three horizons with the middle one primary; top-minus-bottom spreads; paired comparison against momentum. The primary null band comes from persistence-preserving static random rankings, because the signal is slow-moving and evaluation windows overlap; the literal per-date permutation band is reported only as the overlap-naive contrast. Attribution splits the IC into between-sleeve and within-sleeve (demeaned) components, and an equities-only read. Minimum detectable IC reported first.</p>
+</section>
+<section id="outcome-1" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-1">Outcome</h3>
+<p><strong>Result: mechanical verdict CROSS-SECTION VALIDATES at the primary horizon; attribution overturns what that means.</strong></p>
+<ul>
+<li>The mean IC cleared the persistence-preserving null band, the top-minus-bottom spread was positive with a confidence interval clear of zero, and the ordering did not lose to momentum. The registered verdict fired.</li>
+<li><strong>The validated content is entirely the between-sleeve ordering</strong>: risk assets above defensives, plus bond-duration ordering. Within sleeves, the demeaned IC sits inside its null band; the equities-only IC is <strong>inverted</strong> and confidence-interval negative under causal loadings; the ordering is statistically indistinguishable from a trailing momentum rank; and the sleeve call itself inverts for the pre-2010 starts.</li>
+<li>The minimum detectable IC at this sample exceeds any plausible anchor IC, so the within-sleeve question is unanswerable here.</li>
+<li><strong>The frozen-loadings look-ahead leak, quantified.</strong> On identical dates the equity IC under the frozen production loadings is positive while the causal-loadings IC is negative. Any expected-return backtest through frozen loadings inherits this optimism. The build’s Test 1 is reinterpreted as the keep-fraction selection curve, not validation.</li>
+</ul>
+</section>
+<section id="decision" class="level3">
+<h3 class="anchored" data-anchor-id="decision">Decision</h3>
+<p>Production expected returns stood unchanged. Two standing rules, named and binding on every future expected-return evaluation, came out of this study and the sleeve study that followed: <strong>causal inputs everywhere</strong> (reconstruct every input using only prior data, and flag any input that cannot be; nothing frozen from the future may touch an evaluation), and <strong>persistence-preserving nulls</strong> (static random rankings for cross-sections, circular block shifts for levels, never per-date permutation, with the effective sample and minimum detectable effect reported first). The recorded implication, not executed and requiring its own prereg: a sleeve-level simplification (yield-anchored bonds plus one equity-premium block) or the expected-return-invariant risk-parity path, pending the bond-sleeve level study. The within-sleeve cross-section later went on the rejected list.</p>
+</section>
+<section id="where-it-led-2" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-2">Where it led</h3>
+<p>The <a href="../research/expected-returns.html#e-2026-07-23-03">bond-sleeve level study</a> tested the level half this attribution left untested, and the <a href="../research/expected-returns.html#e-2026-07-23-04">simplification</a> then retired the within-sleeve cross-section. The <a href="../research/risk-calibration.html#e-2026-07-27-01">full-model assessment</a> later found the deployed ordering’s rank IC inside the persistence null band at both horizons, as this record predicted.</p>
+</section>
+</section>
+<section id="e-2026-07-23-03" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-23-03">Bond-sleeve level study: does the yield anchor predict sleeve returns at the level? (SLEEVE ANCHOR VALIDATES; the machinery is the raw yield)</h2>
+<p><em>Logged 2026-07-23.</em></p>
+<p><em>A pre-registered, causally reconstructed test of the expected-return input the duration-heavy book actually leans on. The anchor cleared the persistence-preserving null at the level and beat trailing returns decisively; beyond the raw observable curve yield the machinery adds nothing, and the horizon mismatch entering the 2022 hiking cycle is carried as a known risk rather than a defect.</em></p>
+<section id="question-registered" class="level3">
+<h3 class="anchored" data-anchor-id="question-registered">Question (registered)</h3>
+<p>Does the production yield-anchored bond-sleeve expected return predict realized sleeve returns at its anchor horizon, and does its machinery add anything beyond the raw observable yield? This is the input the current allocation leans on: the frozen production walk-forward held most of the book in the bond sleeve entering 2021 to 2022, and the <a href="../research/expected-returns.html#e-2026-07-23-01">sensitivity study</a> flagged the sleeve anchor as the single highest-leverage expected-return input. The <a href="../research/expected-returns.html#e-2026-07-23-02">rank-IC study</a> validated only the sleeve-level ordering; the level itself is what this study tests.</p>
+</section>
+<section id="pre-registration-frozen-before-any-outcome-scoring-1" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-before-any-outcome-scoring-1">Pre-registration (frozen before any outcome scoring)</h3>
+<p><strong>Construction under test.</strong> The production per-ticker anchor: the nominal curve interpolated to each fund’s static duration, an inflation-linked fund as a nominal equivalent, investment grade as curve plus a long-history corporate spread, minus per-ticker credit haircuts. The high-yield and emerging-market names use effective-yield series that exist only from 2023 onward, so they are historically unevaluable and were excluded, flagged.</p>
+<p><strong>Causal reconstruction.</strong> Every input strictly through the prior week, production code verbatim, at every weekly start from early 2008 over the six-name point-in-time sub-sleeve. Primary object: the equal-weight sleeve expected return versus the realized forward sleeve return at the nearest feasible horizon to the anchor’s ten-year construction, with a shorter horizon reported and a longer one descriptive.</p>
+<p><strong>Baselines and null.</strong> Raw curve yield, a naive flat long-rate, trailing realized return, and zero; a circular block-shift persistence-preserving null; effective sample size and minimum detectable effect reported first, per the standing rules carried verbatim in the prereg.</p>
+</section>
+<section id="outcome-2" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-2">Outcome</h3>
+<p><strong>Result: SLEEVE ANCHOR VALIDATES. Validated content: the raw observable yield. Raw yield suffices for the machinery.</strong></p>
+<ul>
+<li>Power first: the effective sample is a couple of epochs, and the null band is wide. The anchor’s correlation with forward realized sleeve return clears the null’s upper quantile by a wide margin; the mean level error is unbiased with the interval containing zero.</li>
+<li>The slope at the primary horizon is far above one, a duration-mechanical amplification that collapses toward identity at the anchor’s own ten-year horizon, the causal reproduction of the build’s Test 2.</li>
+<li>It beats trailing return decisively on both correlation and error.</li>
+<li><strong>Machinery earns nothing.</strong> Beyond the raw curve yield the adjustments reduce to a constant of a few basis points, and the duration and spread time-variation points negative against the naive flat rate, below its own null band. A simplification may anchor to the raw observable yield with no measured loss; the untested high-yield and emerging-market haircuts are an extrapolation zone, retained on reasoning.</li>
+<li><strong>The 2022 exhibit, on record.</strong> Entering the hiking cycle the anchor overstated sleeve returns at every window, worst at the short horizon and shrinking at the primary one, with a material book-level drag at the worst window given the sleeve weight. The trailing-return alternative was several times worse at the same dates. This horizon mismatch is a structural limitation the book carries as risk, not a fixable defect.</li>
+</ul>
+</section>
+<section id="decision-1" class="level3">
+<h3 class="anchored" data-anchor-id="decision-1">Decision</h3>
+<p>Production expected returns stood unchanged. Two spec additions: the named standing rules (causal inputs everywhere; persistence-preserving nulls with power reported first), and the <strong>binding conditionality clause</strong>, verbatim: “The finding that mu cross-section quality is immaterial to outcomes is CONDITIONAL on the current duration-heavy, risk-firewalled posture. If risk budgets rise, leverage is added, or BL views push weight into risky sleeves, the equity cross-section question MUST be reopened under a new prereg before those weights ship.” Recorded implication: the sleeve-level-only simplification prereg is now fully evidence-backed and may proceed.</p>
+</section>
+<section id="where-it-led-3" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-3">Where it led</h3>
+<p>The <a href="../research/expected-returns.html#e-2026-07-23-04">simplification</a> adopted the raw curve yield as the defensive-sleeve expected return the same day. The <a href="../research/risk-calibration.html#e-2026-07-27-01">full-model assessment</a> found the pooled sleeve levels calibrate at both horizons and the 2021 to 2023 rate-shock miss reproduces.</p>
+</section>
+</section>
+<section id="e-2026-07-23-04" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-23-04">Mu simplification adopted: production expected returns become sleeve-level (all gates pass; the consensus cross-section retired to rollback)</h2>
+<p><em>Logged 2026-07-23.</em></p>
+<p><em>A gated adoption study, not open research: the licensing verdicts were complete. The defensive sleeve became the raw observable curve yield at the as-of date and the risky sleeve a single frozen equity-premium block. Every gate passed, including a risk non-degradation gate on the frozen sensitivity panel, and the composition shift it caused was measured as a label shift, not a risk shift.</em></p>
+<section id="what-this-was" class="level3">
+<h3 class="anchored" data-anchor-id="what-this-was">What this was</h3>
+<p>Step two of the recorded expected-returns sequence, executed as a gated adoption rather than open research. The licensing verdicts were complete: the <a href="../research/expected-returns.html#e-2026-07-23-01">sensitivity study</a> (composition-fragile, risk-firewalled, realized cost near zero), the <a href="../research/expected-returns.html#e-2026-07-23-02">rank-IC study</a> (only the sleeve-level ordering validates; the equity ordering inverts under causal loadings), and the <a href="../research/expected-returns.html#e-2026-07-23-03">bond-sleeve level study</a> (the anchor validates and the raw yield suffices).</p>
+</section>
+<section id="pre-registration-every-gate-band-a-pre-registered-number-frozen-before-any-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-every-gate-band-a-pre-registered-number-frozen-before-any-scoring">Pre-registration (every gate band a pre-registered number, frozen before any scoring)</h3>
+<p><strong>The change.</strong> The defensive sleeve’s expected return becomes each ticker’s raw observable curve yield at the as-of date, the production yield code verbatim, with the tested haircuts dropped for the point-in-time-evaluable names and the untested high-yield and emerging-market haircuts retained as-is (a deliberate asymmetry: tested adjustments retired, untested ones kept on reasoning, disclosed). The risky sleeve’s expected return becomes one frozen equity-premium block at the frozen production equity-core level, uniform across the sleeve, the rank-IC verdict that only the sleeve level validated. No new estimated parameters. The vector serves as both the optimizer objective and the scenario location; the certified covariance, the dial, the generator, and the optimizer are untouched. The old cross-section path is preserved bit-for-bit as a one-line rollback.</p>
+<p><strong>Gates, all hard except the descriptive one.</strong> G1: reproduction of the sleeve study’s raw yield series and the exact risky block across every grid date. G2: risk non-degradation on the frozen sensitivity-study evaluation panel, with worst-case CVaR and volatility changes inside pre-registered bands. G3: a composition split alarm against a fresh-seed sensitivity band, frozen before comparison, with the prediction written down first. G4: an outcome sanity read against the recorded near-zero prediction, descriptive. G5: a wiring smoke test, flag-off bit-identical to the captured pre-change baseline and the certified covariance, dial, and degrees of freedom untouched flag-on. Any failure stops the study and leaves the old mode in place.</p>
+</section>
+<section id="outcome-3" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-3">Outcome</h3>
+<p><strong>Result: ALL GATES PASS.</strong></p>
+<ul>
+<li>Reproduction was exact across the grid; risk non-degradation held within its bands; the wiring smoke test was bit-identical.</li>
+<li><strong>The honest read on the composition gate, on record.</strong> Composition moved more than predicted: the median book move was large, most weeks changed a top-three holding, and the median risky share roughly doubled, because the optimizer harvests a uniform premium through the low-volatility risky names. <strong>Tail risk stayed pinned at the CVaR budget.</strong> A label shift, not a risk shift, which is exactly what the risk gate exists to catch, and the split alarm stayed clear of its band.</li>
+</ul>
+</section>
+<section id="decision-2" class="level3">
+<h3 class="anchored" data-anchor-id="decision-2">Decision</h3>
+<p>The sleeve-level mode was defaulted on, with the cross-section path as the rollback. The walk-forward confirmation script was extended to score the new and old expected returns on post-freeze weeks, refusing to score unless the gate record is a pass. The live-allocation builder branches on the mode, and the executed live notebook was deliberately not regenerated: the change reaches the book on the standing re-estimation and drift clocks, at a priced one-off turnover. Expected returns joined the model of record with every component evidence-backed or explicitly characterized, the horizon mismatch documented as a structural limitation, and the binding conditionality clause cross-referenced. On the rejected list: the within-sleeve consensus cross-section, the duration and spread and haircut adjustments on the tested names, and the keep-fraction, retired with the cross-section rather than condemned.</p>
+</section>
+<section id="where-it-led-4" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-4">Where it led</h3>
+<p>The uniform block’s mechanical flaw, a constant numerator harvested through low-risk names, became the question of the next three studies. Two history-estimated cross-sections failed their auditions (<a href="../research/expected-returns.html#e-2026-07-24-01">factor-implied</a>, <a href="../research/expected-returns.html#e-2026-07-24-02">observable anchors</a>) and a covariance-sourced shape passed (<a href="../research/expected-returns.html#e-2026-07-24-03">reverse optimization</a>), leading to the <a href="../research/expected-returns.html#e-2026-07-24-04">reverse-optimization adoption</a> that now sits on top of this sleeve-level base. See the <a href="../research/optimizer-delivered-rule.html#model-of-record">Current Model</a> page.</p>
+</section>
+</section>
+<section id="e-2026-07-24-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-24-01">Factor-implied expected returns: does pricing the risky sleeve through factor exposures beat the uniform block? (UNIFORM BLOCK STANDS)</h2>
+<p><em>Logged 2026-07-24.</em></p>
+<p><em>The first richer expected-return candidate under the program’s third step, and the governed test of the spec’s warning that historical factor means are the sample-mean error-maximizer in factor costume. The diversifier exhibit was fully adjudicable and factor pricing lost it on content; out-of-era premia inverted the ordering and degraded realized tails.</em></p>
+<section id="question-registered-1" class="level3">
+<h3 class="anchored" data-anchor-id="question-registered-1">Question (registered)</h3>
+<p>Does pricing the risky-sleeve cross-section through factor exposures, each asset’s causal loadings times historical factor premia, add validated structure beyond the deployed uniform equity-premium block? In particular, does it correctly discount the low-beta diversifiers (minimum-volatility equity, managed futures, bank loans, the dollar) that the uniform block credits at the full premium and that the optimizer now loads after the <a href="../research/expected-returns.html#e-2026-07-23-04">simplification</a>? Research and characterization only, engine read-only; any adoption would route through the conditionality clause.</p>
+</section>
+<section id="pre-registration-frozen-before-any-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-before-any-scoring">Pre-registration (frozen before any scoring)</h3>
+<p><strong>Candidates.</strong> The incumbent uniform block; factor-implied expected returns with causal annual production-estimator loadings and expanding-mean historical factor premia on the observable core, latent components excluded as unpriced; the premia shrunk toward market-only at several strengths; and the premia frozen on pre-2010 data only, the crisis-dominated era. The bond sleeve identical across all candidates. The wiring gate reproduced the simplification’s frozen optimizer chain on every panel week exactly before anything was scored.</p>
+<p><strong>Verdict logic, three-way, with power first.</strong> The ordering minimum detectable effect over the reconstructable universe reported first; if ordering is out of reach, the verdict routes through the pre-registered diversifier level exhibit (does the candidate price the four named diversifiers nearer their realized returns than the block, with a minimum count of wins) plus a realized-tail gate on the resulting allocations. The spec’s prior on record, that historical factor means are the warned-against construction, was tested here under governance rather than assumed.</p>
+</section>
+<section id="outcome-4" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-4">Outcome</h3>
+<p><strong>Result: UNIFORM BLOCK STANDS.</strong></p>
+<ul>
+<li><strong>Power first.</strong> The ordering minimum detectable effect at the primary horizon was out of reach, so the verdict routed through the level exhibit as registered.</li>
+<li><strong>The exhibit was fully adjudicable and factor pricing lost it on content.</strong> The quartet’s mispricing is name-specific alpha in both directions, not a common over-credit: factor pricing wins the minimum-volatility name (its content is market beta, which the block under-credits) but prices managed futures far below its realized return (trend alpha is outside the factor basis) and swings the dollar negative, replacing an over-credit with an equal-size under-credit; bank loans similarly overshoot.</li>
+<li><strong>Out-of-era premia invert.</strong> The pre-2010 premia produced a confidence-interval-negative ordering and degraded realized tails, failing the tail gate: the lesson learned about crisis magnitudes not transferring across crises applies to premia.</li>
+<li><strong>The shrinkage question is answered.</strong> Shrinking toward market-only changes nothing; nothing beyond market beta earns inclusion, and market-only does not earn the deviation either.</li>
+<li>Decision relevance is real (large book moves, a much lower risky share) but risk stays pinned by the CVaR budget: the candidates use more of the budget and never exceed it.</li>
+</ul>
+</section>
+<section id="decision-3" class="level3">
+<h3 class="anchored" data-anchor-id="decision-3">Decision</h3>
+<p>No adoption path. The uniform block stood; the Black-Litterman views layer remained the vehicle for any specific view (an explicit managed-futures or dollar belief); the conditionality clause was untouched. The spec’s prior survived its first governed expected-return-level test, and factor-implied expected returns from historical premia went on the rejected list. What would adjudicate, recorded: external point-in-time anchors for the carry and trend sleeves, the bond-yield analog, or the clause firing on a posture change.</p>
+</section>
+<section id="where-it-led-5" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-5">Where it led</h3>
+<p>The <a href="../research/expected-returns.html#e-2026-07-24-02">observable-anchor study</a> tested exactly those external anchors for the three sleeves the block knowably mishandles.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Own verdict and decision of record">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Own verdict and decision of record
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The observable-anchor report gives a verdict per sleeve: “UNDERPOWERED” for managed futures, and “UNIFORM BLOCK STANDS” for the dollar and for bank loans. The decision of record is “UNIFORM BLOCK STANDS for all three sleeves”, with the anchors on the rejected list. The report’s routing statement gives the reason: “no adoption path opens from this study. The uniform block stands for all three sleeves”. For managed futures the report adds that the deployed block prices the level better than the anchor.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="e-2026-07-24-02" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-24-02">Observable anchors for the alternative sleeves: trend, carry, and bank loans (UNIFORM BLOCK STANDS for all three; the block’s over-credits are now documented at interval grade)</h2>
+<p><em>Logged 2026-07-24.</em></p>
+<p><em>For the three sleeves the deployed uniform block knowably mishandles, a pre-registered census and test of causally reconstructable observable anchors, the pattern the bond sleeve validated. The intended loan-spread anchor turned out to have no point-in-time data. The managed-futures anchor was underpowered, the dollar-carry anchor failed the information null, and the loan anchors failed on level or information; the block’s over-credits became documented known limitations.</em></p>
+<section id="question-registered-2" class="level3">
+<h3 class="anchored" data-anchor-id="question-registered-2">Question (registered)</h3>
+<p>For the sleeves the deployed uniform block knowably mishandles, managed futures (credited the equity premium at near-zero beta), the dollar (credited well above its realized return), and bank loans (likewise), does a causally reconstructable observable anchor, the pattern the <a href="../research/expected-returns.html#e-2026-07-23-03">bond-sleeve study</a> validated, predict realized sleeve returns and beat honest baselines? Per-sleeve verdicts; no cross-sleeve pooling.</p>
+</section>
+<section id="pre-registration-frozen-after-the-census-before-any-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-after-the-census-before-any-scoring">Pre-registration (frozen after the census, before any scoring)</h3>
+<p><strong>Step-zero census, every candidate source pulled and inspected.</strong> Admitted: a mechanical twelve-month time-series-momentum reproduction for managed futures on frozen-cache proxies with a volatility target and collateral, admitted in a lower class with a pre-registered premise gate (tracking correlation with the fund), which passed; a dollar-basket short-rate differential for the carry anchor with fixed weights and a three-month availability lag; and two loan anchors, funding plus frozen pre-evaluation constants, and funding plus an unscaled corporate-spread series minus haircut. <strong>Disqualified:</strong> the managed-futures index (not reproducible from prices), forward points (no point-in-time data), and the intended observable loan-spread anchor itself, because no loan or high-yield spread series is point-in-time available (the licensed series is truncated to 2023 onward), a permanent data gap now on record.</p>
+<p><strong>Rules.</strong> Causal everything, strictly prior-period inputs; persistence-preserving shift-nulls primary; effective sample and minimum detectable effect first, per sleeve per metric. Three-way verdict logic per sleeve: information (does the anchor’s variation predict forward returns above its null), level (is the anchor’s mean calibrated), and machinery increment against the block and simple baselines. A budget of verdict cells.</p>
+</section>
+<section id="outcome-5" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-5">Outcome</h3>
+<p><strong>Result: UNIFORM BLOCK STANDS in all three sleeves.</strong></p>
+<ul>
+<li><strong>Managed futures: UNDERPOWERED.</strong> The effective sample is a handful of epochs and the minimum detectable effect is large. The block prices the level better than the anchor, and a descriptive note on record: the rule’s expanding mean was wrong-way in every era; trailing performance chasing fails even for a mechanical rule’s own history.</li>
+<li><strong>Dollar: UNIFORM BLOCK STANDS.</strong> Information fails the null at readable power; the anchor’s level is calibrated, and the block’s over-credit is now an interval-grade known limitation.</li>
+<li><strong>Bank loans: UNIFORM BLOCK STANDS on both variants.</strong> The constants variant lands the long-history level on realized returns but carries no information at the study’s best power. The spread variant is the study’s one information pass (the corporate spread carries real forward information for loan returns, with a confidence-interval-positive increment above its own null) but under-prices the level, the census-disclosed cross-market gap. The block’s loan over-credit is now interval-grade.</li>
+<li><strong>Episode exhibits on record.</strong> The trend rule saw 2022 but no level anchor could; the dollar’s 2014 to 2015 spot move is the carry anchor’s structural blind spot; the loan sleeve’s 2022 and 2023 pattern is the funding-reset lag the anchor structure implies.</li>
+</ul>
+</section>
+<section id="decision-4" class="level3">
+<h3 class="anchored" data-anchor-id="decision-4">Decision</h3>
+<p>No adoption path. The dollar and loan over-credits moved from exhibit rows to documented known limitations of the deployed block, carried rather than fixed because no candidate cleared the adoption gates. Follow-up-only candidates were named (combine the spread variant’s information with the constants variant’s level; a licensable point-in-time loan spread; more managed-futures history). The views layer remained the vehicle for specific views; the conditionality clause was untouched. The anchors went on the rejected list, not to be re-run without new data.</p>
+</section>
+<section id="where-it-led-6" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-6">Where it led</h3>
+<p>Every history-estimated or externally anchored cross-section had now failed its audition. The <a href="../research/expected-returns.html#e-2026-07-24-03">reverse-optimization study</a> tried the one source of cross-sectional structure not yet drawn on: the certified covariance itself.</p>
+</section>
+</section>
+<section id="e-2026-07-24-03" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-24-03">Reverse-optimization expected returns: shape from the certified covariance, level from the validated block (EARNS ADOPTION ROUTING at the inverse-volatility reference and the smallest blend step)</h2>
+<p><em>Logged 2026-07-24.</em></p>
+<p><em>The first expected-return candidate to pass its gates. Expected returns proportional to certified-covariance risk contribution, with the level imported from the validated block so the spec’s ‘unanchored’ objection is removed by construction, priced most named assets nearer realized returns with a sign-certain swap ledger at the smallest blend step. Managed futures was the sole loss for every candidate; full-strength reverse optimization and the market-cap reference died.</em></p>
+<section id="question-registered-3" class="level3">
+<h3 class="anchored" data-anchor-id="question-registered-3">Question (registered)</h3>
+<p>Does an expected return proportional to certified-covariance risk contribution, with the proportionality calibrated so the reference-weighted aggregate risky premium equals the deployed uniform block’s level, price the risky sleeve nearer realized returns than the flat block, capturing compensation for risk without estimating anything from return history? The flat block’s mechanical flaw is a constant numerator harvested through low-risk names; every history-estimated cross-section had failed its audition (<a href="../research/expected-returns.html#e-2026-07-23-02">rank IC</a>, <a href="../research/expected-returns.html#e-2026-07-24-01">factor-implied</a>, <a href="../research/expected-returns.html#e-2026-07-24-02">anchors</a>). Reverse optimization sources structure from the certified covariance instead.</p>
+<p>The spec’s prior on record (“reverse optimization produces unanchored returns with no level”) was tested with the level objection removed by construction: the level is imported from the validated block, and reverse optimization supplies only the shape.</p>
+</section>
+<section id="pre-registration-frozen-before-any-scoring-1" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-before-any-scoring-1">Pre-registration (frozen before any scoring)</h3>
+<p><strong>Construction.</strong> Each risky asset’s expected return is the block level times its risk-contribution share under a reference weight vector, computed from the certified predictive covariance the risk and scenario layers consume; the dial’s scale cancels in the shape, verified. References: equal weight, a market-cap proxy with fixed constants, and inverse volatility from the covariance diagonal; the book’s own weights were disqualified as circular. Blends between the block and the reverse-optimized shape at several strengths.</p>
+<p><strong>Known shape of error, to measure rather than assume.</strong> It inverts the managed-futures problem: a near-zero-beta trend fund earns a near-zero premium versus its strongly positive realized return, and the dollar prices negative. A swap-ledger metric prices that trade.</p>
+<p><strong>Census first, frozen before candidate scoring.</strong> The block’s worst misses turned out to be the equity core’s under-credits, all larger than the motivating dollar over-credit, so the named-asset set grew, and a no-new-worse-miss bound was set at the block’s own worst miss.</p>
+<p><strong>Verdict logic.</strong> Ordering power reported first; if out of reach, the verdict routes through the named-asset level exhibit (a minimum count of assets priced nearer realized, and the bound respected), the swap ledger’s confidence interval, and a risk firewall (tail risk stays pinned at the budget on every panel week), plus a reference-sensitivity check. The wiring gate reproduced the simplification’s frozen optimizer chain on every panel week exactly; the quartet’s realized rows were reloaded bit-for-bit from the factor-implied study.</p>
+</section>
+<section id="outcome-6" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-6">Outcome</h3>
+<p><strong>Result: REVOPT at the inverse-volatility reference and the smallest blend step EARNS ADOPTION ROUTING.</strong></p>
+<ul>
+<li>Ordering was out of reach at the primary horizon, so the verdict routed through the level exhibit and ledger as registered.</li>
+<li>The equal-weight and inverse-volatility references price most of the named assets nearer realized with the bound respected; the market-cap reference fails on both counts.</li>
+<li><strong>Managed futures is the sole loss for every candidate</strong>, the pre-stated shape measured: near-zero covariance implies near-zero risk premium against a strongly positive realized return. Trend alpha is orthogonal to risk contribution, as it was to the factor basis.</li>
+<li><strong>The swap-ledger blend curve is the key exhibit</strong>: the named-set net improvement grows with the blend strength while its confidence interval grows faster, so only the smallest step is sign-certain, and partly structurally so (same-side names contribute deterministic improvements at small steps, disclosed). The firewall held on every week for every candidate; the routed candidate is decision-modest, while full strength would unwind most of the simplification’s composition shift.</li>
+<li>The 2022 exhibit is the honest loss: the candidate de-credited the dollar and managed futures into their best year. The duration channel is out of reach by construction.</li>
+</ul>
+</section>
+<section id="decision-5" class="level3">
+<h3 class="anchored" data-anchor-id="decision-5">Decision</h3>
+<p><strong>Nothing adopted here</strong>; production stayed sleeve-level flat. Routing: a follow-up gated adoption prereg under the binding conditionality clause, with the inverse-volatility reference and the smallest blend step frozen from this study, stating explicitly that it re-opens risky-sleeve cross-sectional structure (sourced from the covariance, not history), carrying simplification-grade gates plus a managed-futures-miss guard, and facing the recorded caveats verbatim: an equity-epoch tailwind behind most named-asset wins, the market-cap reference’s dissent (net negative but not significant), and the structurally easy interval at the smallest step. What died, on the rejected list: full-strength reverse optimization (intervals span zero and the managed-futures miss grows with strength) and the market-cap reference, which re-creates the factor-implied failure.</p>
+</section>
+<section id="where-it-led-7" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-7">Where it led</h3>
+<p>The <a href="../research/expected-returns.html#e-2026-07-24-04">adoption prereg</a> ran the same day and passed every gate.</p>
+</section>
+</section>
+<section id="e-2026-07-24-04" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-24-04">Reverse-optimization adoption executed: production expected returns become sleeve-level plus a covariance-sourced tilt (all gates pass; the conditionality clause executed, not bypassed)</h2>
+<p><em>Logged 2026-07-24.</em></p>
+<p><em>The routed follow-up of the reverse-optimization study, run as a gated adoption on the simplification playbook. The risky-sleeve cross-section was re-opened under pre-registration, sourced from the certified covariance rather than return history, with zero history-estimated parameters and a managed-futures-miss guard. Every gate passed and the mode was defaulted on.</em></p>
+<section id="what-this-was-1" class="level3">
+<h3 class="anchored" data-anchor-id="what-this-was-1">What this was</h3>
+<p>An adoption study, not open research: the research verdict existed (<a href="../research/expected-returns.html#e-2026-07-24-03">reverse-optimization study</a>). Gates here are reproduction and non-degradation, on the <a href="../research/expected-returns.html#e-2026-07-23-04">simplification’s</a> playbook. The prereg carries the conditionality-clause statement verbatim: this adoption re-opens the risky-sleeve cross-section explicitly, sourced from the certified covariance, not return history. The clause’s new-prereg requirement was executed, not bypassed.</p>
+</section>
+<section id="pre-registration-frozen-with-every-gate-band-a-study-record-number" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-with-every-gate-band-a-study-record-number">Pre-registration (frozen with every gate band a study-record number)</h3>
+<p><strong>The change, exact.</strong> The risky-sleeve expected return becomes a blend of the frozen block level and the block level times each asset’s risk-contribution share under the inverse-volatility reference, at the blend strength frozen from the study, with the reference weights, blend constant, and level read from the study artifact at runtime and never hard-coded (the artifact’s prereg hash asserted on every load). The bond sleeve unchanged. Zero history-estimated parameters anywhere, asserted. The dial’s scale cancels in the shape, asserted on every call. A risky name outside the certified window keeps the flat level, a fallback guarded never to fire on engine-active sets. A pre-change baseline was captured at the prior commit before any engine edit.</p>
+<p><strong>Gates, all hard except the descriptive one.</strong> G1: reproduction of the study’s research-grid expected returns across every date, and the time-mean anchor against the stored value. G2: budget respect on every panel week plus bit-reproduction of the routed panel posture against the study’s stored solutions. G3: characterization equal to the study record (book move, risky share, quartet move) with the managed-futures-miss guard inside the study envelope. G4: an outcome read, descriptive. G5: a wiring smoke test, flag-off bit-identical to the baseline at two as-of dates, the certified covariance, dial, and degrees of freedom untouched flag-on, and the location-shift identity at machine precision. Any failure stops the study and leaves the sleeve-level mode in place.</p>
+</section>
+<section id="outcome-7" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-7">Outcome</h3>
+<p><strong>Result: ALL HARD GATES PASS.</strong></p>
+<ul>
+<li>Reproduction was exact across the grid; budget respect held on every panel week with the routed posture bit-reproduced; the characterization matched the study record with the guard inside its envelope; the wiring smoke test was bit-identical.</li>
+<li><strong>Two pre-scoring incidents, logged and disclosed.</strong> A fallback-bookkeeping assertion (universe-level versus active-set list), and a G3 alarm caused by the prereg’s rounding of the study envelopes, resolved to the artifact-exact envelopes per the prereg’s own definition, with the frozen prereg untouched.</li>
+</ul>
+</section>
+<section id="decision-6" class="level3">
+<h3 class="anchored" data-anchor-id="decision-6">Decision</h3>
+<p>The mode was defaulted on, with the flat sleeve-level block as the one-line rollback and the consensus cross-section as the deeper tested rollback. The walk-forward confirmation script was extended to score the tilted against the flat expected returns on post-freeze weeks, hash-and-gate verified, refusing refit, and stated as the equity-epoch caveat’s real test: the routed evidence rests on realized levels over one epoch, and this panel accrues the only clean out-of-epoch evidence. The live-allocation builder branches on the new mode; the executed notebook was deliberately not regenerated, so the change reaches the book on the standing clocks.</p>
+<p><strong>What the book inherits, priced and on record.</strong> The equity core’s under-credits are reduced, not removed; the dollar and loan over-credits are partially reduced; and the managed-futures under-credit is retained and deepened by construction, because trend alpha is orthogonal to risk contribution and to the factor span, so only an external point-in-time anchor (none exists) or a genuinely transient view may ever address it, with the allocation consequence bounded by the guard. The market-cap reference’s dissent is carried verbatim. This closed the open decision the study had opened, and the three-component expected return of record on the <a href="../research/optimizer-delivered-rule.html#model-of-record">Current Model</a> page is the result.</p>
+</section>
+<section id="where-it-led-8" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-8">Where it led</h3>
+<ul>
+<li>The <a href="../research/expected-returns.html#e-2026-07-24-05">mean-reversion study</a> measured the deployed expected return’s own “deviations unpredictable” null and found it stands.</li>
+<li>The <a href="../research/risk-calibration.html#e-2026-07-27-01">full-model assessment</a> reproduced the known-limitation ledger at interval grade and found the deployed ordering carries level structure with no incremental ordering information, as this record predicted.</li>
+</ul>
+</section>
+</section>
+<section id="e-2026-07-24-05" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-24-05">Mean-reversion effect size: do price-displacement signals predict deviations from the deployed expected returns? (NO MEASURABLE EFFECT in all three sleeves; the null stands)</h2>
+<p><em>Logged 2026-07-24.</em></p>
+<p><em>The first governed measurement of the deployed expected return’s own ‘deviations unpredictable’ null. Every pre-registered cell was scored in a single pass with a sign-stability co-primary fixed in advance. The bond control was a clean null; the risky sleeves carried a real pooled signal in two shapes, both disqualified, one of them flipping sign in the most recent eras. No construction prereg was licensed.</em></p>
+<section id="question-registered-4" class="level3">
+<h3 class="anchored" data-anchor-id="question-registered-4">Question (registered)</h3>
+<p>Do trailing-price displacement signals (the log price’s displacement from a moving average, volatility-scaled; and volatility-scaled past returns) carry measurable, sign-stable information about forward deviations from the deployed unconditional expected returns, per sleeve, and at which lookback and horizon? The measured object is deviation prediction: the deployed expected return says the expected deviation is zero regardless of any signal. A measurement, not a candidate: no adoption, no construction here. A survivor would have earned only a later construction prereg, entering as conditioning sized by the measured slope, never as a level.</p>
+</section>
+<section id="pre-registration-frozen-before-any-scoring-2" class="level3">
+<h3 class="anchored" data-anchor-id="pre-registration-frozen-before-any-scoring-2">Pre-registration (frozen before any scoring)</h3>
+<p><strong>Grid.</strong> Two signal families at four lookbacks, three forward horizons, three sleeves (equities, the diversifier quartet, bonds), causally z-scored and sleeve-aggregated. The cell grid is the budget: every cell logged, no selection, single pass. Target: the realized forward sleeve return minus the deployed sleeve expected return (the constant risky block; the causal point-in-time yield anchor for bonds, through the prior week).</p>
+<p><strong>Rules.</strong> Causal inputs (levels through the decision bar, the forward window strictly after, trailing realized volatility for scaling, declared); persistence-preserving shift-nulls primary with effective sample and minimum detectable effect first per cell; Bonferroni across the grid; and an <strong>extra co-primary: sign stability across eras and sleeves</strong>. A sign flip is anti-evidence regardless of pooled magnitude, the lesson of the out-of-era premia inversion and the managed-futures misses, encoded before scoring.</p>
+</section>
+<section id="outcome-8" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-8">Outcome</h3>
+<p><strong>Result: NO MEASURABLE EFFECT in all three sleeves. The deployed expected return’s zero-deviation null stands.</strong></p>
+<ul>
+<li><strong>Power first.</strong> Effective samples shrink sharply at the long horizon; the equity sleeve is power-limited, with no cell reaching the economic scale of interest.</li>
+<li><strong>Bonds, the mechanical-reversion control, are a clean null</strong>: no cell in either direction against the sleeve’s own causal yield anchor, in the one sleeve where theory most expects reversion.</li>
+<li><strong>The risky sleeves carry a real pooled family signal</strong>, in two shapes, both disqualified as registered. First, a short-horizon crash-rebound tail asymmetry: Bonferroni-clean slopes but a rank correlation near zero, with the quintile profiles showing the entire effect sits in the bottom quintile, an episodic arrival-and-rebound structure that belongs to the <a href="../research/arrival-overlay.html#e-2026-07-22-06">arrival-risk program</a>, not a conditioning dial. Second, a long-window monotone effect at the long horizon, the one conditioning-shaped object found, which <strong>flips sign in the most recent eras</strong> (equities in the post-2023 era, the quartet in 2021 to 2023, each outside its era null band), exactly the wrong-way epochs where the family’s prior losses occurred. The co-primary fired; the discoveries were voided.</li>
+<li>The two signal families are one family in substance (highly correlated, below the collapse bar).</li>
+</ul>
+</section>
+<section id="decision-7" class="level3">
+<h3 class="anchored" data-anchor-id="decision-7">Decision</h3>
+<p>Production expected returns stood. No construction prereg was licensed. Bounds on any reversion effect were priced and recorded per sleeve. The family went on the rejected list: do not re-open from this window, because only forward out-of-epoch accrual can adjudicate the long-window shape (more history is not coming), and the short-horizon tail shape routes to the arrival-risk program rather than expected returns.</p>
+</section>
+<section id="where-it-led-9" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-9">Where it led</h3>
+<p>With the expected-return layer’s own null measured and standing, the cycle closed with the <a href="../research/risk-calibration.html#e-2026-07-27-01">full-model assessment</a>, the first joint test of the assembled stack.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

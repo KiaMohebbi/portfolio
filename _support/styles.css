@@ -1,0 +1,91 @@
+/* Site styles. Keep minimal; cosmo does most of the work. */
+
+.figure img {
+  max-width: 100%;
+}
+
+/* the disclaimer shown at the top of every page */
+.site-disclaimer {
+  font-size: 0.85em;
+  color: #374151;
+  background: #f3f4f6;
+  border-left: 3px solid #9ca3af;
+  padding: 0.5em 0.9em;
+  margin: 0.5em auto 1em auto;
+  max-width: 1200px;
+}
+.site-disclaimer p {
+  margin: 0;
+}
+
+/* library page: research and recap lists */
+.lib-list {
+  margin: 0.5em 0 1.5em 0;
+}
+.lib-item {
+  padding: 0.55em 0.8em;
+  margin: 0.4em 0;
+  border-left: 3px solid #e5e7eb;
+}
+.lib-item a {
+  font-weight: 600;
+}
+.lib-meta {
+  font-size: 0.85em;
+  color: #6b7280;
+  margin-left: 0.5em;
+}
+.lib-desc {
+  margin: 0.2em 0 0 0;
+  font-size: 0.92em;
+}
+.status-badge {
+  display: inline-block;
+  font-size: 0.75em;
+  padding: 0.05em 0.5em;
+  border-radius: 0.6em;
+  margin-left: 0.4em;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+.status-adopted { border-color: #0d9488; color: #0f766e; }
+.status-rejected { border-color: #b91c1c; color: #991b1b; }
+.status-open { border-color: #d97706; color: #b45309; }
+
+/* quarterly recaps are highlighted: badge and accent */
+.lib-item.recap-quarterly {
+  border-left: 4px solid #2563eb;
+  background: #eff6ff;
+}
+.kind-badge {
+  display: inline-block;
+  font-size: 0.75em;
+  padding: 0.05em 0.5em;
+  border-radius: 0.6em;
+  margin-left: 0.4em;
+  background: #2563eb;
+  color: #ffffff;
+}
+.kind-badge.kind-rebalance {
+  background: #e5e7eb;
+  color: #374151;
+}
+.lib-empty {
+  color: #6b7280;
+  font-style: italic;
+}
+.recap-toggle {
+  font-size: 0.9em;
+  margin: 0.3em 0 0.6em 0;
+}
+.quarterly-only .lib-item.recap-rebalance {
+  display: none;
+}
+
+/* verify box on recap pages */
+.verify-box {
+  font-size: 0.88em;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 0.6em 0.9em;
+}

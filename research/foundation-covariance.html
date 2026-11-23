@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-07-18">
+<meta name="description" content="How the engine was built end to end on real prices and how its covariance estimator, sampling frequency and factor-model construction were chosen.">
+
+<title>Foundation and covariance estimator – Quantitative Research Journal</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../_support/styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Quantitative Research Journal</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../library.html"> 
+<span class="menu-text">Research and recaps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#e-2026-07-12-01" id="toc-e-2026-07-12-01" class="nav-link active" data-scroll-target="#e-2026-07-12-01">Foundation build: the v1 engine on real data (working baseline, superseded)</a>
+  <ul class="collapse">
+  <li><a href="#what-this-was" id="toc-what-this-was" class="nav-link" data-scroll-target="#what-this-was">What this was</a></li>
+  <li><a href="#the-step-by-step-real-data-build" id="toc-the-step-by-step-real-data-build" class="nav-link" data-scroll-target="#the-step-by-step-real-data-build">The step-by-step real-data build</a></li>
+  <li><a href="#outcome" id="toc-outcome" class="nav-link" data-scroll-target="#outcome">Outcome</a></li>
+  <li><a href="#decision" id="toc-decision" class="nav-link" data-scroll-target="#decision">Decision</a></li>
+  <li><a href="#where-it-led" id="toc-where-it-led" class="nav-link" data-scroll-target="#where-it-led">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-13-01" id="toc-e-2026-07-13-01" class="nav-link" data-scroll-target="#e-2026-07-13-01">Is the trailing-window covariance representative? (structure stable, levels not)</a>
+  <ul class="collapse">
+  <li><a href="#question" id="toc-question" class="nav-link" data-scroll-target="#question">Question</a></li>
+  <li><a href="#design-fixed-before-the-real-data-run" id="toc-design-fixed-before-the-real-data-run" class="nav-link" data-scroll-target="#design-fixed-before-the-real-data-run">Design (fixed before the real-data run)</a></li>
+  <li><a href="#outcome-1" id="toc-outcome-1" class="nav-link" data-scroll-target="#outcome-1">Outcome</a></li>
+  <li><a href="#decision-1" id="toc-decision-1" class="nav-link" data-scroll-target="#decision-1">Decision</a></li>
+  <li><a href="#where-it-led-1" id="toc-where-it-led-1" class="nav-link" data-scroll-target="#where-it-led-1">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-13-02" id="toc-e-2026-07-13-02" class="nav-link" data-scroll-target="#e-2026-07-13-02">Covariance estimator selection: weekly sampling, a frugal shrinkage benchmark (augmented PCA not adopted)</a>
+  <ul class="collapse">
+  <li><a href="#question-1" id="toc-question-1" class="nav-link" data-scroll-target="#question-1">Question</a></li>
+  <li><a href="#design-pre-specified" id="toc-design-pre-specified" class="nav-link" data-scroll-target="#design-pre-specified">Design (pre-specified)</a></li>
+  <li><a href="#outcome-2" id="toc-outcome-2" class="nav-link" data-scroll-target="#outcome-2">Outcome</a></li>
+  <li><a href="#decision-2" id="toc-decision-2" class="nav-link" data-scroll-target="#decision-2">Decision</a></li>
+  <li><a href="#where-it-led-2" id="toc-where-it-led-2" class="nav-link" data-scroll-target="#where-it-led-2">Where it led</a></li>
+  </ul></li>
+  <li><a href="#e-2026-07-18-02" id="toc-e-2026-07-18-02" class="nav-link" data-scroll-target="#e-2026-07-18-02">Factor-model variants: what the factor architecture costs the risk model (adopt the hybrid)</a>
+  <ul class="collapse">
+  <li><a href="#question-2" id="toc-question-2" class="nav-link" data-scroll-target="#question-2">Question</a></li>
+  <li><a href="#design-fixed-before-scoring" id="toc-design-fixed-before-scoring" class="nav-link" data-scroll-target="#design-fixed-before-scoring">Design (fixed before scoring)</a></li>
+  <li><a href="#outcome-3" id="toc-outcome-3" class="nav-link" data-scroll-target="#outcome-3">Outcome</a></li>
+  <li><a href="#decision-3" id="toc-decision-3" class="nav-link" data-scroll-target="#decision-3">Decision</a></li>
+  <li><a href="#where-it-led-3" id="toc-where-it-led-3" class="nav-link" data-scroll-target="#where-it-led-3">Where it led</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+<div class="site-disclaimer" role="note">
+<p>This site documents a personal research project. Nothing here is investment advice or a recommendation to buy or sell any security. The portfolio shown is a model portfolio; no real money is invested. Backtested and projected figures are hypothetical and do not predict future results.</p>
+</div>
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Foundation and covariance estimator</h1>
+</div>
+
+<div>
+  <div class="description">
+    How the engine was built end to end on real prices and how its covariance estimator, sampling frequency and factor-model construction were chosen.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 18, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Study</th>
+<th>Date</th>
+<th>Status</th>
+<th>Reason (from its record)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="../research/foundation-covariance.html#e-2026-07-12-01">Foundation build</a></td>
+<td>2026-07-12</td>
+<td>adopted</td>
+<td>Own verdict “working baseline”, “Superseded by the governed programs that follow” (its entry); decision of record “Initial architecture: hybrid factor model + RMT” (model specification, changelog); its reference implementation was later “demoted to a reused helper” (model specification, engine merge)</td>
+</tr>
+<tr class="even">
+<td><a href="../research/foundation-covariance.html#e-2026-07-13-01">Stationarity test</a></td>
+<td>2026-07-13</td>
+<td>adopted</td>
+<td>“Structure is stable; magnitudes are not.” (model specification, key empirical findings); a characterization, so adopted is the closest status: the finding stands in that evidence base. As the rationale for the longer window, its lookback finding later “does not survive” (window study report), though the flat result itself was “reproduced in spirit”; see the note before the entry</td>
+</tr>
+<tr class="odd">
+<td><a href="../research/foundation-covariance.html#e-2026-07-13-02">Covariance estimator selection</a></td>
+<td>2026-07-13</td>
+<td>adopted</td>
+<td>Shrinkage “won the estimator bake-off” and is “the calibration BENCHMARK”; “Frequency locked weekly”; “Augmented PCA verdict: NOT ADOPTED” (model specification); see the note before the entry</td>
+</tr>
+<tr class="even">
+<td><a href="../research/foundation-covariance.html#e-2026-07-18-02">Factor-model variants</a></td>
+<td>2026-07-18</td>
+<td>adopted</td>
+<td>“Verdict: adopt H (hybrid)”; “free on calibration, decisive on architecture” (model specification)</td>
+</tr>
+</tbody>
+</table>
+<p>This program built the engine end to end on real total-return prices and then asked whether the covariance at its center can be trusted: whether a trailing-window estimate describes the coming horizon, which estimator and sampling frequency best predict portfolio risk, and what a factor-model architecture costs in calibration. It found that co-movement structure is stable while magnitudes are not, locked weekly sampling with shrinkage as the calibration benchmark, and adopted the hybrid factor model as the production covariance construction for its architecture, at essentially no calibration cost. Augmented PCA and the split-clock estimator were rejected. These were pre-governance builds and tests with no pre-registration file, so the model specification is their record.</p>
+<section id="e-2026-07-12-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-12-01">Foundation build: the v1 engine on real data (working baseline, superseded)</h2>
+<p><em>Logged 2026-07-12.</em></p>
+<p><em>The pre-governance end-to-end build: total-return data, hybrid factor covariance, CMA-anchored expected returns, fat-tailed scenarios, and STARR weights, laid out one inspectable step at a time on real prices.</em></p>
+<section id="what-this-was" class="level3">
+<h3 class="anchored" data-anchor-id="what-this-was">What this was</h3>
+<p>The first end-to-end version of the engine, built before any of the governance that the later entries run under. The design is the one still visible in the running model: Python is the calculator and the workbook is the input/output layer; edit the input sheets or the configuration, run the script, and the output sheets are rewritten as engine-rendered snapshots.</p>
+<p>The pipeline, in order:</p>
+<ol type="1">
+<li><strong>Data.</strong> Total-return prices, resampled to weekly for covariance and monthly for decisions, with young ETFs spliced onto proxy history where a proxy tracks the same index.</li>
+<li><strong>Covariance.</strong> Regress the observable macro factors out of every asset first (market, rates, credit), run principal components only on the residuals, keep the components above the Marchenko-Pastur noise edge, and rebuild the covariance as factor block plus idiosyncratic diagonal. The random-matrix cut is the factor-count rule, never a hard-coded number.</li>
+<li><strong>Expected returns.</strong> A Black-Litterman equilibrium prior reverse-optimized from a risk-parity anchor, with views blended in.</li>
+<li><strong>Allocation.</strong> STARR (excess return per unit of CVaR) via the Rockafellar-Uryasev representation and Dinkelbach iteration, each step a linear program. Risk parity is the benchmark, mean-variance the overlay. CVaR is optimized, never VaR.</li>
+<li><strong>Validation.</strong> A walk-forward with two separate clocks (slow re-estimation, threshold rebalance), block-bootstrap Monte Carlo, and a factor-stability diagnostic.</li>
+<li><strong>Workbook.</strong> The formatted output file.</li>
+</ol>
+</section>
+<section id="the-step-by-step-real-data-build" class="level3">
+<h3 class="anchored" data-anchor-id="the-step-by-step-real-data-build">The step-by-step real-data build</h3>
+<p>The build notebook re-derives the whole pipeline on live total-return prices, each step as three cells: computation, a visual, and a plain-language interpretation of what to look for and whether it is sane. Two choices made here carried forward:</p>
+<ul>
+<li><strong>The ragged panel is handled honestly.</strong> Assets have very different inception dates. Nothing was spliced and no period was dropped because an asset was missing. Covariance used per-asset factor regressions and pairwise residual correlations, then a reconstruction that is positive semi-definite by construction. The walk-forward used a per-window active universe, so early windows traded the names that existed and later windows traded all of them.</li>
+<li><strong>Black-Litterman was deferred.</strong> With no views it collapses to its prior, so expected returns came straight from the capital-market assumptions with a clearly commented seam where the views layer slots in. That seam is still where it was left.</li>
+</ul>
+<p>A data-quality gate required every bond and credit fund to show nonzero total return, the tell for price-only data. Factor loadings were checked for economically correct signs. The random-matrix cut kept a small number of residual components that could be named from their co-loadings.</p>
+<p>The weight-pipeline notebook laid the same chain out on monthly returns over a common overlapping window, with illustrative views only. The correlation scratch notebook built the observable factors and the first loading matrix and is not a study.</p>
+</section>
+<section id="outcome" class="level3">
+<h3 class="anchored" data-anchor-id="outcome">Outcome</h3>
+<p><strong>Result: working baseline.</strong> The machinery ran end to end on real data and produced a sane workbook. No pre-registration, trial budget, or sealed holdout existed yet beyond the discipline written into the design document: choose specifications a priori, keep the regularizers, purge and embargo every seam, count the tries, and treat the holdout as single-use.</p>
+</section>
+<section id="decision" class="level3">
+<h3 class="anchored" data-anchor-id="decision">Decision</h3>
+<p>Superseded by the governed programs that follow. The locked design decisions from this build survived every later study: hybrid factor model rather than pure principal components, the Marchenko-Pastur cut as the factor-count rule, Procrustes alignment of factor identity across windows, CVaR rather than VaR, scenarios drawn from the denoised covariance with Student-t tails rather than a short-history bootstrap, and the two clocks. The pieces that did not survive as first built are documented in their own entries: the reference implementation was demoted to a reused helper at the engine merge, and the Black-Litterman layer stayed deferred.</p>
+</section>
+<section id="where-it-led" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led">Where it led</h3>
+<p>The two tests that immediately followed asked whether the covariance this build leans on is trustworthy: the <a href="../research/foundation-covariance.html#e-2026-07-13-01">stationarity test</a> and the <a href="../research/foundation-covariance.html#e-2026-07-13-02">estimator selection</a>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Verdict and decision of record: stationarity test">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Verdict and decision of record: stationarity test
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The study reads the pooled bias ratio as inside the band, “so no robust constant over- or under-forecast could be claimed from the median”. The model specification’s finding for the same result is “Risk is systematically over-predicted, and it’s regime-structured”, with the pooled bias “inside the null” (model specification, key empirical findings). No record explains the difference: the records disagree.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="e-2026-07-13-01" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-13-01">Is the trailing-window covariance representative? (structure stable, levels not)</h2>
+<p><em>Logged 2026-07-13.</em></p>
+<p><em>A stationarity test of the one assumption the engine leans on: whether a covariance estimated on the trailing window describes co-movement over the coming horizon. Co-movement structure held inside the noise band; volatility levels did not, and the miss concentrates in stress.</em></p>
+<section id="question" class="level3">
+<h3 class="anchored" data-anchor-id="question">Question</h3>
+<p>The engine estimates covariance on a trailing multi-year window and then acts as if that matrix describes how the assets will co-move over the coming decision horizon. Every downstream number inherits that assumption. The notebook asked bluntly whether it is true, and expected the honest answer to be “partly”. So it separated covariance into two pieces with different priors: <strong>structure</strong> (which assets co-move, the correlation pattern and its principal directions, expected to be relatively stable) and <strong>levels</strong> (how much they move, volatilities and correlation magnitude, expected to be unstable).</p>
+<p>One cross-cutting rule from the design document: structure is always read from scale-free correlations and eigenvectors, never from raw covariance, so that a pure volatility spike cannot be misread as a structural change.</p>
+</section>
+<section id="design-fixed-before-the-real-data-run" class="level3">
+<h3 class="anchored" data-anchor-id="design-fixed-before-the-real-data-run">Design (fixed before the real-data run)</h3>
+<ul>
+<li><strong>One harness, run everywhere.</strong> Estimator-agnostic metrics with a plug-in estimator: the plain sample covariance for the structure metrics and the null, and the production hybrid covariance for the risk-forecast half of Test 1.</li>
+<li><strong>Synthetic validation first.</strong> Data drawn from a fixed covariance must make every test say “stable”; the same setup with a deliberate mid-sample break (rotated loadings plus higher volatility) must make every test detect it. Because a rotation of loadings leaves the factor covariance unchanged, the break was planted with genuinely new loadings.</li>
+<li><strong>Test 1, predictive validity.</strong> Walk forward; estimate on the trailing window; score realized against predicted volatility for min-variance, risk-parity, and random long-only portfolios. Headline is the median realized-to-predicted ratio split by calm and turbulent out-of-sample windows. Forecast error against a long-run expanding matrix and a shrinkage matrix, decomposed into a structure part and a levels part.</li>
+<li><strong>Test 2, structure over time.</strong> Average correlation and first-component share (the levels-ish view), subspace overlap and correlation-matrix distance (the pure-structure view).</li>
+<li><strong>Test 3, stationary-noise null.</strong> The ruling test: whether each metric sits inside or outside the band a frozen world would produce.</li>
+<li><strong>Test 4, decision relevance.</strong> A lookback sweep on the risk-parity benchmark and the gap between stale and oracle covariance.</li>
+</ul>
+<p><strong>Data honesty.</strong> Only tradable series were pulled, spliced only where a proxy tracks essentially the same index and never beta-spliced onto plain equity. The honest common window therefore starts when the youngest un-spliceable factor ETF has real data, which excludes the 2008 crisis. The synthetic regime-shift test stands in for a crisis of that scale; the real window still contains 2020 and 2022.</p>
+</section>
+<section id="outcome-1" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-1">Outcome</h3>
+<p><strong>Result: structure is stable, levels are not, and the miss is regime-shaped.</strong></p>
+<ul>
+<li>The harness passed both synthetic checks before any real verdict was read.</li>
+<li>Subspace overlap sat <strong>inside</strong> the stationary-noise band: the co-movement directions are as stable as a frozen world would produce.</li>
+<li>Correlation-matrix distance sat <strong>outside</strong> the band: the magnitude of co-movement shifts more than estimation noise allows, and it lives in the levels embedded in the correlation matrix (average correlation rising in stress), not in the directions.</li>
+<li>The pooled bias ratio sat inside the band, so no robust constant over- or under-forecast could be claimed from the median. The real hazard is asymmetry: the calm-period risk cushion evaporates in turbulent windows.</li>
+<li>The lookback sweep was flat, so a mid-range window was judged defensible, with the stale-versus-oracle gap priced as the irreducible cost of having one realized history.</li>
+</ul>
+</section>
+<section id="decision-1" class="level3">
+<h3 class="anchored" data-anchor-id="decision-1">Decision</h3>
+<p>No component changed. The test set the framing the rest of the cycle used: keep the structural half of the covariance, and treat the level half as the moving part that needs its own instrument.</p>
+</section>
+<section id="where-it-led-1" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-1">Where it led</h3>
+<ul>
+<li>The regime asymmetry, together with the observation that many diversifying pairs flip sign around 2020, became the empirical case for the <a href="../research/regime-mixture.html#e-2026-07-16-01">Markov regime model</a>.</li>
+<li>The “stable structure, moving magnitude” reading is the shape the risk model eventually settled into, with a fixed factor structure and a separately timed level dial (see the <a href="../research/risk-calibration.html#e-2026-07-21-03">conditional level-correction study</a>).</li>
+<li>The lookback finding was the original rationale for the longer estimation window that the engine shipped with. The <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a> later found that rationale does not distinguish the candidate windows, and that the shorter window is better on the weekly tail statistic.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="Verdict and decision of record: estimator selection">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Verdict and decision of record: estimator selection
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The study reads the never-adapt floor’s win on the long-lookback composite as coming “only because that panel’s few windows all fell in a calm stretch”. The model specification reads the same result as evidence: “Re-estimation loses to never-updating”, which “supports discrete regimes over continuous adaptation” (model specification, key empirical findings) and is “an argument for the Markov approach” (model specification, covariance); it flags the single-regime ranking as “PROVISIONAL” but does not give the calm-stretch reason. No record explains the difference: the records disagree.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="e-2026-07-13-02" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-13-02">Covariance estimator selection: weekly sampling, a frugal shrinkage benchmark (augmented PCA not adopted)</h2>
+<p><em>Logged 2026-07-13.</em></p>
+<p><em>Which estimator, sampling frequency, and calendar lookback best predicts next-period portfolio risk. Weekly frequency won and was locked; the frugal shrinkage family set the calibration benchmark; the augmented observable-projection construction and the fast-clock estimator were rejected.</em></p>
+<section id="question-1" class="level3">
+<h3 class="anchored" data-anchor-id="question-1">Question</h3>
+<p>Which combination of covariance estimator, sampling frequency, and calendar lookback best predicts next-period portfolio risk, and how stable is each combination? This selected the covariance machinery only. It did not build the regime model and did not touch expected returns. The notebook states the scope caveat up front: the production allocator is return-dominated, so a better covariance here is machinery selection, not full-pipeline validation.</p>
+</section>
+<section id="design-pre-specified" class="level3">
+<h3 class="anchored" data-anchor-id="design-pre-specified">Design (pre-specified)</h3>
+<p>The estimators, the observable pool, the grid, and the scoring rule were fixed before scoring. Selection was on out-of-sample bias ratio (closest to one), low dispersion, and stability (low turnover, few correlation sign flips), never on in-sample fit. Where cells were close, the simpler estimator and the flattest cell across lookbacks were preferred.</p>
+<p><strong>Estimators.</strong> Pure principal components with the random-matrix cut; the hybrid (observable factors regressed out, then random-matrix principal components on the residuals); an observable-projection construction that regresses each retained component on a broad observable pool with a sparse elastic-net fit and rebuilds only the explained part; the same construction with a frozen, pre-registered set of transforms and interactions added to the pool (each with a named mechanism); a Ledoit-Wolf shrinkage benchmark; an observables-only frugal benchmark; an expanding-window “never adapt” floor; and a split-clock estimator (slow correlation structure times a fast rolling volatility diagonal). Every path that would produce a raw sample covariance was denoised, and every output was projected to positive semi-definite.</p>
+<p><strong>Frequencies and lookbacks.</strong> Daily, weekly, and monthly panels derived from one daily common window so the frequency comparison spans an identical calendar; several calendar lookbacks, because a calendar window yields a different sample count at each frequency, which is the point.</p>
+<p><strong>Two-panel structural constraint, surfaced up front.</strong> The structure-preserving common window starts where the youngest un-spliceable factor ETFs begin, because beta-splicing those funds onto plain equity would fabricate the very co-movement being measured. Requiring the longest lookback in the grid and a single common evaluation window forces that panel’s out-of-sample period to start late; a second panel with the shortest lookback reaches much further back.</p>
+<p><strong>Protocol and scoring.</strong> Non-overlapping six-month test blocks with purge and embargo at every seam, applied identically to every cell including the floor. Scoring is decision-level and horizon-matched: min-variance and random long-only portfolios, predicted versus realized volatility at the same frequency the covariance was estimated at, never square-root-scaled across horizons. Headline is the bias ratio; dispersion, under-estimation frequency, and a calm-versus-turbulent split are reported alongside, plus turnover and sign-flip bookkeeping.</p>
+<p><strong>Guardrails.</strong> The harness was validated on synthetic data first (calibrated on stationary data, detects a stale covariance carried across a break). The augmentation had its own positive control (a genuine interaction loading the plain pool cannot explain) and a sharper negative control (a collinear level factor whose product term absorbs in-sample weight with no nonlinearity present, which must not win out of sample).</p>
+</section>
+<section id="outcome-2" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-2">Outcome</h3>
+<p><strong>Result: weekly frequency, a frugal shrinkage estimator, a flat mid-range lookback.</strong></p>
+<ul>
+<li><strong>Frequency is the load-bearing choice.</strong> Monthly under-forecasts in stress and has too few crisis bars to estimate a crisis-state covariance, so it was ruled out. Daily is the most accurate in stress but its cross-correlations are damped by asynchronous foreign and over-the-counter prints, worst in a fast crisis, and it is the noisiest to re-estimate. Weekly errs conservative in stress, is largely free of the asynchronous damping, and still supplies enough crisis bars.</li>
+<li><strong>Estimators cluster tightly on out-of-sample bias.</strong> Denoising dominates and the fancier constructions do not beat the frugal benchmarks, which under the design discipline mandates the simpler estimator. The never-adapt floor topped the long-lookback composite, but only because that panel’s few windows all fell in a calm stretch where every cell over-forecasts.</li>
+<li><strong>Augmented PCA: not adopted.</strong> Out-of-sample gain was essentially nil with identical fit in both pools. The elastic-net penalty prefers spreading weight across collinear predictors, so the interaction terms were selected for penalty-geometry reasons, not signal. Selection frequency is therefore not evidence.</li>
+<li><strong>Split clock: rejected.</strong> Best overall bias, but a large under-forecast in turbulent windows: a fast volatility clock is reactive, not predictive, and it thrashes.</li>
+<li><strong>Hybrid: disadvantaged by ragged data.</strong> The factor regression needed a rectangular block, so late windows could not see 2008. This reading was later overridden.</li>
+</ul>
+</section>
+<section id="decision-2" class="level3">
+<h3 class="anchored" data-anchor-id="decision-2">Decision</h3>
+<p>Weekly sampling was locked for the whole pipeline. Shrinkage became the calibration benchmark every later construction is measured against, and the in-regime estimator the regime program selected. Augmented PCA and the split clock went on the rejected list with reasons. The forward note on crisis estimability (whichever frequency wins must supply enough crisis observations) set the frequency for the regime model.</p>
+</section>
+<section id="where-it-led-2" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-2">Where it led</h3>
+<ul>
+<li>The <a href="../research/regime-mixture.html#e-2026-07-16-01">Markov regime model</a> reused this scoring protocol verbatim and selected shrinkage as the in-regime estimator.</li>
+<li>The <a href="../research/foundation-covariance.html#e-2026-07-18-02">factor-model variants test</a> fixed the ragged-data handicap and adopted the hybrid construction for architecture rather than calibration.</li>
+<li>The split clock’s rejection was reconfirmed two ways later: it was the worst row of the <a href="../research/risk-calibration.html#e-2026-07-20-03">weekly calibration battery</a>, and the <a href="../research/risk-calibration.html#e-2026-07-21-05">window-lag study</a> showed why any fast window re-breaks clustering.</li>
+</ul>
+</section>
+</section>
+<section id="e-2026-07-18-02" class="level2">
+<h2 class="anchored" data-anchor-id="e-2026-07-18-02">Factor-model variants: what the factor architecture costs the risk model (adopt the hybrid)</h2>
+<p><em>Logged 2026-07-18.</em></p>
+<p><em>Seven factor-model constructions across four lookbacks, scored regime-conditionally on body and tail calibration against the shrinkage incumbent. The hybrid construction was adopted: free on calibration, a small gain on the tail, and decisive on architecture.</em></p>
+<section id="question-2" class="level3">
+<h3 class="anchored" data-anchor-id="question-2">Question</h3>
+<p>Shrinkage was the incumbent risk estimator and had already won the <a href="../research/foundation-covariance.html#e-2026-07-13-02">estimator selection</a>. So why a factor model at all? Architecture, not calibration: shrinkage is a black-box covariance that cannot host a custom strategy, carry Black-Litterman views, or give the expected-return vector and the risk matrix a shared structure. A factor model can. The test measured the calibration cost of adopting the factor architecture, in the body and the tails of the risk distribution, and picked the best construction of it. The honest question was framed as cost, not as a bake-off: if a construction matches shrinkage within noise, the architecture is essentially free and is adopted for the capabilities the test does not score.</p>
+</section>
+<section id="design-fixed-before-scoring" class="level3">
+<h3 class="anchored" data-anchor-id="design-fixed-before-scoring">Design (fixed before scoring)</h3>
+<p><strong>Constructions.</strong> The shrinkage benchmark; observables only (no residual components, the floor); the hybrid (regress out the observable factors, random-matrix principal components on the residuals, keep survivors as latent factors); observable-projected principal components; the same with the remainder kept; and augmented variants of each. All share the common factor-model form per regime, with the covariance assembled from loadings, factor covariance, and residual covariance only. The intercept is estimated and reported but must never enter risk, and the covariance was verified invariant to it.</p>
+<p><strong>Discipline.</strong> Observable factors are returns or trailing levels, never centered or forward-realized; style spreads are long-minus-market. Variants and the observable pool were fixed before scoring; the elastic net used the one-standard-error rule as an a priori parsimony choice. Selection on the out-of-sample walk-forward plus residual structure plus robustness, never in-sample fit. The holdout was untouched.</p>
+<p><strong>Controls and comparisons.</strong> Synthetic positive control (a known factor structure must be recovered and agreed on in a rotation-invariant measure) and negative control (observable factors plus independent noise must not manufacture latent factors). Loadings were compared rotation-invariantly, by factor-explained variance per asset and by Procrustes alignment. Residuals were modelled three ways for the tail (Gaussian full, shared scalar mixing, and a Student-t copula with Student-t marginals).</p>
+<p><strong>Scoring.</strong> Regime-conditional, soft-pooled by filtered probability, frozen regime model and generator, so only the covariance construction changes. Body: volatility-bias ratio on min-variance and random portfolios. Tails: Kupiec, Christoffersen, and the ES-to-CVaR ratio on equal-weight and risk-parity probes. A power caveat stated before reading: select on tail numbers only if a gap exceeds the sampling band; the body read is the higher-powered one.</p>
+</section>
+<section id="outcome-3" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-3">Outcome</h3>
+<p><strong>Result: adopt the hybrid. The architecture is essentially free, and on the tail it is a small improvement, not a cost.</strong></p>
+<ul>
+<li><strong>Body.</strong> Every factor construction over-predicts volatility very slightly more than shrinkage, a cost comfortably inside the sampling band. No meaningful body cost.</li>
+<li><strong>Tail.</strong> The factor family is better calibrated than shrinkage, not worse. On the risk-parity probe the gap is large and beyond the noise band: constant-correlation shrinkage smears the tail co-movement of the low-volatility assets a risk-parity book concentrates in, and the factor structure captures it. Coverage was never rejected for anyone. The factor family also reproduces observed co-crashing modestly better.</li>
+<li><strong>The two-probe insight.</strong> Equal-weight and risk-parity score differently because each is a different quadratic form of the same matrix. Scoring more than one portfolio geometry reads out which region of the matrix each model gets right. This is why risk parity, not equal weight, surfaced the factor model’s edge, and it became a standing rule.</li>
+<li><strong>Which construction.</strong> All six factor constructions tie on out-of-sample calibration. The tie-breakers decide: the observables-only floor gets a clean residual only by assuming it away; the observable-projected family models residual structure honestly but leaves real co-movement its unnamed components cannot name; the hybrid earns its clean residual (the latent factors absorb the crisis co-movement), extracts the most systematic variance per asset, and keeps named observable factors ready to carry views and custom-strategy projections. It is also the construction the reference implementation already used.</li>
+<li><strong>The hybrid is not the same as the observable-projected construction</strong> on real data, despite matching on synthetic data: extraction order matters most for assets weakly linked to the observables. A rotation-invariant finding, mildly favoring the hybrid.</li>
+<li>Augmentation and keep-the-remainder are inert (selected but change nothing; the regime already encodes the volatility state) and were dropped by parsimony. The residual dependence model is underpowered at this sample; Gaussian-full stands, consistent with the <a href="../research/tail-scenarios.html#e-2026-07-17-02">tail-risk model test</a>.</li>
+</ul>
+</section>
+<section id="decision-3" class="level3">
+<h3 class="anchored" data-anchor-id="decision-3">Decision</h3>
+<p>The hybrid became the production covariance construction. This explicitly overrode the earlier in-regime reading that the hybrid was disadvantaged: that penalty was a ragged-data artifact of a rectangular-block regression, fixed here with per-window available-column selection and regime-conditional soft-pooling. Shrinkage remained the calibration benchmark.</p>
+</section>
+<section id="where-it-led-3" class="level3">
+<h3 class="anchored" data-anchor-id="where-it-led-3">Where it led</h3>
+<ul>
+<li>The <a href="../research/expected-returns.html#e-2026-07-18-03">expected-returns build</a> projected consensus premia through these frozen loadings.</li>
+<li>The <a href="../research/risk-calibration.html#e-2026-07-21-04">architecture study</a> later established that the random-matrix-truncated mass is diagonalized into the idiosyncratic block rather than lost, and that restoring the off-diagonal remainder cannot move the level bias.</li>
+<li>The certified production covariance keeps this hybrid structure on the equal-weight window chosen by the <a href="../research/risk-calibration.html#e-2026-07-22-03">window study</a>.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1 @@
+The T-bill rate in use is the 4-month Treasury bill from the U.S. Treasury par yield curve: 4.32% at the 2026-11-20 close. It is the rate the T-bill sleeve earns (weekly, at the previous Friday's close / 52; the first live week, to the 2026-11-27 close, at the go-live rate) and the rate subtracted in every excess-return figure.
